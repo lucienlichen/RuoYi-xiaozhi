@@ -1,0 +1,58 @@
+/**
+ * Robot terminal portrait screen adaptation
+ * Target: 8-inch vertical screen (~800x1280)
+ */
+
+// Portrait mode - vertical screen on humanoid robot
+@media (max-width: 820px) and (orientation: portrait) {
+  // Element Plus dialog - full screen on portrait
+  .el-dialog {
+    width: 95% !important;
+    margin-top: 5vh !important;
+  }
+
+  // Element Plus drawer - full width on portrait
+  .el-drawer {
+    width: 100% !important;
+  }
+
+  // Tables - horizontal scroll
+  .el-table {
+    .el-table__body-wrapper {
+      overflow-x: auto;
+    }
+  }
+
+  // Calendar - compact mode
+  .el-calendar {
+    .el-calendar__body {
+      padding: 8px;
+    }
+
+    .el-calendar-day {
+      height: 40px;
+    }
+  }
+
+  // Forms - stack label and input
+  .el-form--inline {
+    .el-form-item {
+      display: block;
+      margin-right: 0;
+      width: 100%;
+    }
+  }
+
+  // Pagination - simplified
+  .el-pagination {
+    .el-pagination__jump,
+    .el-pagination__sizes {
+      display: none;
+    }
+  }
+}
+
+// Landscape mode - standard desktop/laptop
+@media (min-width: 1024px) {
+  // No special overrides needed for desktop
+}
