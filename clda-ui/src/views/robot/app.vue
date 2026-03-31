@@ -22,12 +22,12 @@
 
     <!-- 前沿知识AI助手 -->
     <div v-else-if="currentService === 'safety_maintenance_ai'" class="service-panel">
-      <PlaceholderView title="前沿知识AI助手" desc="基于安全维保文档的RAG问答，支持知识检索与智能问答。" color="#EC4899" status="即将上线" />
+      <KnowledgeView />
     </div>
 
     <!-- 法规标准AI助手 -->
     <div v-else-if="currentService === 'regulations_ai'" class="service-panel">
-      <PlaceholderView title="法规标准AI助手" desc="内置起重机相关法律法规、技术规范，提供基于法规的专业问答。" color="#64748B" status="即将上线" />
+      <RegulationsView />
     </div>
 
     <!-- 设备区域管理 -->
@@ -54,6 +54,8 @@ import EquipDataView from '@/views/intellect/equipdata/index.vue'
 import PartitionView from '@/views/intellect/partition/index.vue'
 import EquipmentView from '@/views/intellect/equipment/index.vue'
 import PlaceholderView from './components/PlaceholderView.vue'
+import KnowledgeView from '@/views/intellect/knowledge/index.vue'
+import RegulationsView from '@/views/intellect/regulations/index.vue'
 
 const route = useRoute()
 const currentService = computed(() => route.query.service || '')

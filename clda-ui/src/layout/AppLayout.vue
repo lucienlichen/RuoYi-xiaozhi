@@ -64,7 +64,7 @@
     </div>
 
     <!-- Voice chat panel (floating) -->
-    <VoiceChatPanel :username="userStore.name" :auto-connect="true" />
+    <VoiceChatPanel :username="userStore.name" :auto-connect="true" :auto-listen="false" default-mode="manual" />
 
     <!-- Add equipment dialog -->
     <el-dialog v-model="showAddEquipment" title="添加设备" width="500px" append-to-body>
@@ -116,7 +116,7 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const equipmentStore = useEquipmentStore()
-const { setNavigateCallback, setAutoListenOnConnect, setListenMode } = useVoiceChat()
+const { setNavigateCallback } = useVoiceChat()
 
 const currentService = computed(() => route.query.service || '')
 const activeServiceId = ref(null)
@@ -130,7 +130,15 @@ const activeAssistant = computed(() => {
   return aiAssistants.find(a => a.service === activeServiceId.value) || null
 })
 
+// These services render as full-page views in AppContent, not slide-up overlays
+const fullPageServices = ['safety_maintenance_ai', 'regulations_ai']
+
 function toggleAssistant(service) {
+  if (fullPageServices.includes(service)) {
+    activeServiceId.value = null
+    switchService(service)
+    return
+  }
   activeServiceId.value = activeServiceId.value === service ? null : service
 }
 
@@ -162,13 +170,12 @@ watch(() => route.query.assistant, (val) => {
 }, { immediate: true })
 
 onMounted(() => {
-  setAutoListenOnConnect(false)
-  setListenMode('manual')
   setNavigateCallback((service) => {
     if (service === 'menu') {
       router.replace('/robot/menu')
+    } else if (service === 'data_import') {
+      router.replace('/app')
     } else {
-      // Check if it's an AI assistant service
       const isAssistant = aiAssistants.some(a => a.service === service)
       if (isAssistant) {
         activeServiceId.value = service
