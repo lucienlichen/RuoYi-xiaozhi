@@ -10,6 +10,7 @@ import com.clda.intellect.domain.DataFile;
 import com.clda.intellect.domain.EquipmentData;
 import com.clda.intellect.mapper.DataFileMapper;
 import com.clda.intellect.mapper.EquipmentDataMapper;
+import com.clda.intellect.service.IDataProcessingService;
 import com.clda.intellect.service.IEquipmentDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
 
     private final EquipmentDataMapper equipmentDataMapper;
     private final DataFileMapper dataFileMapper;
+    private final IDataProcessingService dataProcessingService;
 
     @Override
     public List<EquipmentData> selectList(Long equipmentId, Long categoryId, Date dataDate) {
@@ -70,10 +72,17 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
                 dataFile.setOcrStatus("NONE");
                 dataFile.setCreateBy(operName);
                 dataFileMapper.insert(dataFile);
+
+                // 触发异步处理流水线
+                dataProcessingService.processFileAsync(dataFile.getId());
             } catch (Exception e) {
                 log.error("文件上传失败: {}", file.getOriginalFilename(), e);
             }
         }
+
+        // 更新状态为处理中
+        data.setStatus("PROCESSING");
+        equipmentDataMapper.updateById(data);
         return data;
     }
 
@@ -114,6 +123,11 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
         return list.stream()
                 .map(d -> DateUtil.format(d.getDataDate(), "yyyy-MM-dd"))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public DataFile selectFileById(Long fileId) {
+        return dataFileMapper.selectById(fileId);
     }
 
     private String resolveFileType(String contentType, String fileName) {

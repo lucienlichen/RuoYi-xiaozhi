@@ -41,6 +41,9 @@ public class DataFile extends BaseEntity {
     /** 预处理后文件路径 */
     private String preprocessedPath;
 
+    /** AI增强后图片路径 */
+    private String enhancedPath;
+
     /** 预处理状态(NONE/PROCESSING/DONE/FAILED) */
     private String preprocessStatus;
 

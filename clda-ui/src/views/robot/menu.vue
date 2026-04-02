@@ -1,5 +1,5 @@
 <template>
-  <div class="robot-menu">
+  <div class="robot-menu ds-dark">
     <!-- Header -->
     <div class="robot-menu__header">
       <div class="welcome-area">
@@ -123,9 +123,9 @@ async function handleLogout() {
 <style lang="scss" scoped>
 .robot-menu {
   min-height: 100vh;
-  background: #0a0a1a;
-  color: #d8d8e4;
-  padding: 24px;
+  background: var(--ds-surface);
+  color: var(--ds-on-surface);
+  padding: var(--ds-space-6);
   display: flex;
   flex-direction: column;
 }
@@ -144,7 +144,7 @@ async function handleLogout() {
 .welcome-text {
   font-size: 20px;
   font-weight: 600;
-  color: #e8e8f0;
+  color: var(--ds-on-surface);
   flex: 1;
   line-height: 1.5;
 }
@@ -155,13 +155,13 @@ async function handleLogout() {
   flex-shrink: 0;
 
   .el-button {
-    background: rgba(255,255,255,0.06);
-    border-color: rgba(255,255,255,0.1);
-    color: #d8d8e4;
+    background: var(--ds-surface-container);
+    border-color: var(--ds-outline-variant);
+    color: var(--ds-on-surface);
 
     &:hover {
-      background: rgba(255,255,255,0.12);
-      border-color: rgba(255,255,255,0.2);
+      background: var(--ds-surface-container-high);
+      border-color: var(--ds-outline-variant);
     }
   }
 }
@@ -170,14 +170,14 @@ async function handleLogout() {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: var(--ds-space-4);
   align-content: start;
 }
 
 .ai-card {
   background: var(--card-color-light);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
+  border: 1px solid var(--ds-outline-variant);
+  border-radius: var(--ds-radius-lg);
   padding: 24px 20px;
   cursor: pointer;
   display: flex;
@@ -202,7 +202,7 @@ async function handleLogout() {
   &:hover {
     transform: translateY(-2px);
     border-color: var(--card-color);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    box-shadow: var(--ds-shadow-lg);
   }
 
   &:active {
@@ -213,7 +213,7 @@ async function handleLogout() {
 .ai-card__icon {
   width: 56px;
   height: 56px;
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   background: var(--card-color-light);
   border: 1px solid var(--card-color);
   display: flex;
@@ -228,13 +228,13 @@ async function handleLogout() {
   h3 {
     font-size: 16px;
     font-weight: 600;
-    color: #e8e8f0;
+    color: var(--ds-on-surface);
     margin-bottom: 6px;
   }
 
   p {
     font-size: 13px;
-    color: rgba(255,255,255,0.5);
+    color: var(--ds-on-surface-variant);
     line-height: 1.5;
   }
 }
@@ -243,7 +243,7 @@ async function handleLogout() {
   position: absolute;
   top: 24px;
   right: 20px;
-  color: rgba(255,255,255,0.2);
+  color: var(--ds-outline);
   transition: color 0.3s;
 
   .ai-card:hover & {

@@ -1,230 +1,156 @@
 <template>
-  <div class="knowledge-view" :class="{ 'is-tablet': isTablet }">
-
-    <!-- PC 左右分栏 / 平板列表页 -->
-    <div v-show="!isTablet || !isDetailMode" class="knowledge-layout">
-
-      <!-- 左侧目录面板 -->
-      <aside class="catalog-panel">
-        <div class="catalog-header">
-          <el-icon :size="16" color="#EC4899"><Reading /></el-icon>
-          <span>知识目录</span>
-        </div>
-        <div class="catalog-body">
-          <template v-for="book in books" :key="book.id">
-            <div class="book-item">
-              <div class="book-title">
-                <el-icon :size="14"><Collection /></el-icon>
-                <span>{{ book.title }}</span>
-              </div>
-              <div class="chapter-tree">
-                <template v-for="chapter in book.chapters" :key="chapter.id">
-                  <div
-                    class="tree-node level-1"
-                    :class="{ active: selectedChapterId === chapter.id, expanded: expandedIds.has(chapter.id) }"
-                    @click="handleNodeClick(chapter)"
-                  >
-                    <el-icon v-if="chapter.children && chapter.children.length" class="expand-icon" :size="12">
-                      <component :is="expandedIds.has(chapter.id) ? ArrowDown : ArrowRight" />
-                    </el-icon>
-                    <span class="node-icon" v-else>·</span>
-                    <span class="node-label">{{ chapter.title }}</span>
-                  </div>
-                  <template v-if="expandedIds.has(chapter.id) && chapter.children">
-                    <template v-for="section in chapter.children" :key="section.id">
-                      <div
-                        class="tree-node level-2"
-                        :class="{ active: selectedChapterId === section.id, expanded: expandedIds.has(section.id) }"
-                        @click="handleNodeClick(section)"
-                      >
-                        <el-icon v-if="section.children && section.children.length" class="expand-icon" :size="11">
-                          <component :is="expandedIds.has(section.id) ? ArrowDown : ArrowRight" />
-                        </el-icon>
-                        <span class="node-icon" v-else>–</span>
-                        <span class="node-label">{{ section.title }}</span>
-                      </div>
-                      <template v-if="expandedIds.has(section.id) && section.children">
-                        <div
-                          v-for="sub in section.children"
-                          :key="sub.id"
-                          class="tree-node level-3"
-                          :class="{ active: selectedChapterId === sub.id }"
-                          @click="handleNodeClick(sub)"
-                        >
-                          <span class="node-icon">∙</span>
-                          <span class="node-label">{{ sub.title }}</span>
-                        </div>
-                      </template>
-                    </template>
-                  </template>
-                </template>
-              </div>
+  <div class="knowledge-view">
+    <!-- 三列布局：一本书一列 -->
+    <div class="kn-body" v-loading="loading">
+      <div v-for="book in books" :key="book.id" class="kn-col">
+        <div class="book-card">
+          <div class="book-card-header">
+            <span class="book-dot" :style="{ background: bookColor(book) }" />
+            <span class="book-label">{{ book.title }}</span>
+            <span class="book-badge" :style="{ background: bookColorLight(book), color: bookColor(book) }">
+              {{ (book.chapters || []).length }}
+            </span>
+          </div>
+          <div class="book-card-body">
+            <div
+              v-for="(ch, idx) in (book.chapters || [])"
+              :key="ch.id"
+              class="ch-row"
+              :class="{ active: selectedId === ch.id }"
+              @click="openChapter(ch, book)"
+            >
+              <span class="ch-num" :style="{ color: bookColor(book) }">{{ idx + 1 }}</span>
+              <span class="ch-title">{{ ch.title }}</span>
             </div>
-          </template>
-        </div>
-      </aside>
-
-      <!-- 右侧内容区（PC 始终显示，平板隐藏） -->
-      <main v-if="!isTablet" class="content-panel">
-        <div v-if="!selectedChapterContent" class="content-empty">
-          <el-icon :size="48" color="#e2e8f0"><Reading /></el-icon>
-          <p>请从左侧目录选择章节阅读</p>
-        </div>
-        <template v-else>
-          <div class="content-body" v-loading="contentLoading">
-            <div class="chapter-content" v-html="selectedChapterContent.contentHtml" />
+            <div v-if="!loading && (!book.chapters || book.chapters.length === 0)" class="book-empty">暂无章节</div>
           </div>
-          <div class="content-nav">
-            <button class="nav-btn" :disabled="!prevChapter" @click="goChapter(prevChapter)">
-              <el-icon><ArrowLeft /></el-icon> 上一节
-            </button>
-            <button class="nav-btn" :disabled="!nextChapter" @click="goChapter(nextChapter)">
-              下一节 <el-icon><ArrowRight /></el-icon>
-            </button>
-          </div>
-        </template>
-      </main>
-    </div>
-
-    <!-- 平板详情页 -->
-    <div v-if="isTablet && isDetailMode" class="detail-page">
-      <div class="detail-header">
-        <button class="back-btn" @click="isDetailMode = false">
-          <el-icon><ArrowLeft /></el-icon>
-          <span>返回</span>
-        </button>
-        <span class="detail-title">{{ selectedChapterContent?.title }}</span>
-      </div>
-      <div class="detail-body" v-loading="contentLoading">
-        <div class="chapter-content" v-html="selectedChapterContent?.contentHtml" />
+        </div>
       </div>
     </div>
 
+    <!-- 右侧抽屉：原始文件预览 -->
+    <el-drawer
+      v-model="drawerVisible"
+      direction="rtl"
+      :size="drawerSize"
+      :close-on-click-modal="true"
+      destroy-on-close
+      @close="onDrawerClose"
+    >
+      <template #header>
+        <div class="drawer-header">
+          <h3 class="drawer-title">{{ selectedChapter?.title }}</h3>
+          <div class="drawer-meta">
+            <el-tag v-if="selectedBook" size="small" :color="bookColorLight(selectedBook)" :style="{ color: bookColor(selectedBook), borderColor: bookColor(selectedBook) }">
+              {{ selectedBook.title }}
+            </el-tag>
+            <span v-if="selectedChapter?.fileName" class="drawer-file">{{ selectedChapter.fileName }}</span>
+            <a v-if="fileUrl" class="drawer-download" :href="fileUrl" :download="selectedChapter?.fileName" target="_blank">
+              <el-icon :size="14"><Download /></el-icon> 下载原文件
+            </a>
+          </div>
+        </div>
+      </template>
+      <div class="drawer-content" v-loading="chapterLoading">
+        <!-- PDF 预览 -->
+        <VueOfficePdf v-if="fileType === 'pdf'" :src="fileUrl" class="file-viewer" />
+        <!-- DOCX 预览 -->
+        <VueOfficeDocx v-else-if="fileType === 'docx'" :src="fileUrl" class="file-viewer" />
+        <!-- 其他格式 -->
+        <div v-else-if="selectedChapter && !chapterLoading" class="file-fallback">
+          <el-icon :size="48" class="file-fallback-icon"><Document /></el-icon>
+          <p v-if="fileUrl">该文件格式暂不支持在线预览</p>
+          <p v-else>该章节暂无关联文件</p>
+          <a v-if="fileUrl" :href="fileUrl" :download="selectedChapter?.fileName" target="_blank">
+            <el-button type="primary" icon="Download">下载文件查看</el-button>
+          </a>
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { Reading, Collection, ArrowDown, ArrowRight, ArrowLeft } from '@element-plus/icons-vue'
+import { ref, computed, onMounted } from 'vue'
+import { Document, Download } from '@element-plus/icons-vue'
+import VueOfficePdf from '@vue-office/pdf'
+import VueOfficeDocx from '@vue-office/docx'
+import '@vue-office/docx/lib/index.css'
 import { getBooksWithTree, getChapter } from '@/api/intellect/knowledge'
 
+const COLORS = ['#EC4899', '#8b5cf6', '#f59e0b']
+const COLORS_LIGHT = ['#fce7f3', '#ede9fe', '#fef3c7']
+
+function bookColor(book) {
+  const idx = books.value.indexOf(book)
+  return COLORS[idx % COLORS.length]
+}
+function bookColorLight(book) {
+  const idx = books.value.indexOf(book)
+  return COLORS_LIGHT[idx % COLORS_LIGHT.length]
+}
+
 const books = ref([])
-const pageLoading = ref(false)
+const loading = ref(false)
+const selectedId = ref(null)
+const selectedChapter = ref(null)
+const selectedBook = ref(null)
+const chapterLoading = ref(false)
+const drawerVisible = ref(false)
 
-const selectedChapterId = ref(null)
-const selectedChapterContent = ref(null)
-const contentLoading = ref(false)
-const expandedIds = ref(new Set())
-const isDetailMode = ref(false)
-const isTablet = ref(false)
+const drawerSize = computed(() => window.innerWidth <= 820 ? '92%' : '70%')
 
-function checkScreenSize() {
-  isTablet.value = window.innerWidth <= 820
+const totalChapters = computed(() =>
+  books.value.reduce((sum, b) => sum + (b.chapters?.length || 0), 0)
+)
+
+const fileUrl = computed(() => {
+  if (!selectedChapter.value?.filePath) return ''
+  return import.meta.env.VITE_APP_BASE_API + selectedChapter.value.filePath
+})
+
+const fileType = computed(() => {
+  const name = selectedChapter.value?.fileName || ''
+  const ext = name.split('.').pop().toLowerCase()
+  if (ext === 'pdf') return 'pdf'
+  if (ext === 'docx') return 'docx'
+  return 'other'
+})
+
+async function loadBooks() {
+  loading.value = true
+  try {
+    const res = await getBooksWithTree()
+    books.value = res.data || []
+  } catch {
+    books.value = []
+  }
+  loading.value = false
+}
+
+async function openChapter(ch, book) {
+  selectedId.value = ch.id
+  selectedBook.value = book
+  drawerVisible.value = true
+  chapterLoading.value = true
+  try {
+    const res = await getChapter(ch.id)
+    selectedChapter.value = res.data
+  } catch {
+    selectedChapter.value = ch
+  }
+  chapterLoading.value = false
+}
+
+function onDrawerClose() {
+  selectedId.value = null
+  selectedChapter.value = null
+  selectedBook.value = null
 }
 
 onMounted(() => {
-  checkScreenSize()
-  window.addEventListener('resize', checkScreenSize)
-  pageLoading.value = true
-  getBooksWithTree().then(res => {
-    books.value = res.data || []
-    pageLoading.value = false
-  })
+  loadBooks()
 })
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkScreenSize)
-})
-
-// Walk tree to find chapter by id
-function findChapter(chapters, id) {
-  for (const ch of chapters) {
-    if (ch.id === id) return ch
-    if (ch.children?.length) {
-      const found = findChapter(ch.children, id)
-      if (found) return found
-    }
-  }
-  return null
-}
-
-// Flat list of all leaf chapters (chapters with no children) for prev/next nav
-function collectLeaves(chapters, result = []) {
-  for (const ch of chapters) {
-    if (!ch.children || ch.children.length === 0) {
-      result.push(ch)
-    } else {
-      collectLeaves(ch.children, result)
-    }
-  }
-  return result
-}
-
-const flatChapters = computed(() => {
-  const leaves = []
-  for (const book of books.value) {
-    collectLeaves(book.chapters, leaves)
-  }
-  return leaves
-})
-
-const currentIndex = computed(() => flatChapters.value.findIndex(c => c.id === selectedChapterId.value))
-const prevChapter = computed(() => currentIndex.value > 0 ? flatChapters.value[currentIndex.value - 1] : null)
-const nextChapter = computed(() => currentIndex.value < flatChapters.value.length - 1 ? flatChapters.value[currentIndex.value + 1] : null)
-
-async function handleNodeClick(node) {
-  if (node.children && node.children.length > 0) {
-    // Toggle expand for parent nodes
-    const ids = new Set(expandedIds.value)
-    if (ids.has(node.id)) {
-      ids.delete(node.id)
-    } else {
-      ids.add(node.id)
-    }
-    expandedIds.value = ids
-    selectedChapterId.value = node.id
-    selectedChapterContent.value = node
-    if (isTablet.value) isDetailMode.value = true
-  } else {
-    // Leaf node: fetch full content from API
-    selectedChapterId.value = node.id
-    if (isTablet.value) isDetailMode.value = true
-    contentLoading.value = true
-    const res = await getChapter(node.id)
-    selectedChapterContent.value = res.data
-    contentLoading.value = false
-  }
-}
-
-async function goChapter(chapter) {
-  if (!chapter) return
-  selectedChapterId.value = chapter.id
-  expandParentsOf(chapter.id)
-  contentLoading.value = true
-  const res = await getChapter(chapter.id)
-  selectedChapterContent.value = res.data
-  contentLoading.value = false
-}
-
-function expandParentsOf(targetId) {
-  function findAndExpand(chapters, parentId) {
-    for (const ch of chapters) {
-      if (ch.id === targetId) return true
-      if (ch.children?.length) {
-        if (findAndExpand(ch.children, ch.id)) {
-          const ids = new Set(expandedIds.value)
-          ids.add(ch.id)
-          expandedIds.value = ids
-          return true
-        }
-      }
-    }
-    return false
-  }
-  for (const book of books.value) {
-    findAndExpand(book.chapters, null)
-  }
-}
 </script>
 
 <style lang="scss" scoped>
@@ -232,365 +158,211 @@ function expandParentsOf(targetId) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #fff;
+  background: var(--ds-surface);
 }
 
-.knowledge-layout {
+
+/* ===== 三列内容区 ===== */
+.kn-body {
+  flex: 1;
   display: flex;
-  height: 100%;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-4);
   overflow: hidden;
+  min-height: 0;
 }
 
-/* ===== 左侧目录 ===== */
-.catalog-panel {
-  width: 320px;
-  flex-shrink: 0;
+.kn-col {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #e2e8f0;
-  background: #f8fafc;
   overflow: hidden;
 }
 
-.catalog-header {
+/* ===== 书籍卡片 ===== */
+.book-card {
+  background: var(--ds-surface-container-lowest);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+.book-card-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 16px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #374151;
-  border-bottom: 1px solid #e2e8f0;
-  flex-shrink: 0;
-  background: #fff;
+  padding: 12px 16px;
+  background: var(--ds-surface-container-low);
 }
 
-.catalog-body {
+.book-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.book-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ds-on-surface);
+  flex: 1;
+}
+
+.book-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--ds-radius-full);
+  flex-shrink: 0;
+}
+
+.book-card-body {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0;
+  padding: 4px 6px;
 }
 
-.book-item {
-  margin-bottom: 4px;
-}
-
-.book-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #EC4899;
-  letter-spacing: 0.02em;
-}
-
-.chapter-tree {
-  padding: 0;
-}
-
-.tree-node {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  cursor: pointer;
+.book-empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--ds-outline);
   font-size: 13px;
-  color: #475569;
-  border-radius: 6px;
-  margin: 1px 6px;
-  transition: background 0.15s, color 0.15s;
-  line-height: 1.4;
+}
 
-  &:hover {
-    background: #f1f5f9;
-    color: #1e293b;
-  }
+/* ===== 章节行 ===== */
+.ch-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover { background: var(--ds-surface-container-low); }
 
   &.active {
-    background: #fce7f3;
-    color: #be185d;
-    font-weight: 600;
-  }
-
-  &.level-1 {
-    padding-left: 16px;
-    font-weight: 500;
-  }
-
-  &.level-2 {
-    padding-left: 28px;
-    font-size: 13px;
-  }
-
-  &.level-3 {
-    padding-left: 40px;
-    font-size: 12px;
+    background: var(--ds-rose-surface);
+    .ch-title { color: var(--ds-rose); font-weight: 600; }
   }
 }
 
-.expand-icon {
+.ch-num {
   flex-shrink: 0;
-  color: #94a3b8;
-  transition: transform 0.2s;
-}
-
-.node-icon {
-  flex-shrink: 0;
-  width: 12px;
-  text-align: center;
-  color: #94a3b8;
-  font-size: 14px;
-}
-
-.node-label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ===== 右侧内容 ===== */
-.content-panel {
-  flex: 1;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ds-rose-surface);
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.content-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  color: #94a3b8;
-  font-size: 14px;
-}
-
-.content-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 32px;
-}
-
-.content-nav {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 24px;
-  border-top: 1px solid #f1f5f9;
-  background: #fafafa;
-}
-
-.nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
-  color: #475569;
   font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover:not(:disabled) {
-    border-color: #EC4899;
-    color: #EC4899;
-    background: #fce7f3;
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  font-weight: 700;
+  margin-top: 1px;
 }
 
-/* ===== 章节内容渲染 ===== */
-.chapter-content {
-  :deep(h2) {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0 0 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #fce7f3;
-  }
-
-  :deep(h3) {
-    font-size: 16px;
-    font-weight: 600;
-    color: #374151;
-    margin: 20px 0 10px;
-  }
-
-  :deep(h4) {
-    font-size: 14px;
-    font-weight: 600;
-    color: #4b5563;
-    margin: 16px 0 8px;
-  }
-
-  :deep(p) {
-    font-size: 14px;
-    color: #374151;
-    line-height: 1.8;
-    margin-bottom: 12px;
-  }
-
-  :deep(ul), :deep(ol) {
-    padding-left: 20px;
-    margin-bottom: 12px;
-
-    li {
-      font-size: 14px;
-      color: #374151;
-      line-height: 1.8;
-      margin-bottom: 4px;
-    }
-  }
-
-  :deep(dl) {
-    dt {
-      font-weight: 600;
-      color: #1e293b;
-      margin-top: 12px;
-    }
-    dd {
-      margin-left: 16px;
-      font-size: 14px;
-      color: #4b5563;
-      line-height: 1.7;
-    }
-  }
-
-  :deep(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 16px 0;
-    font-size: 13px;
-
-    th {
-      background: #f1f5f9;
-      padding: 8px 12px;
-      text-align: left;
-      font-weight: 600;
-      color: #374151;
-      border: 1px solid #e2e8f0;
-    }
-
-    td {
-      padding: 8px 12px;
-      color: #4b5563;
-      border: 1px solid #e2e8f0;
-      line-height: 1.6;
-    }
-
-    tr:nth-child(even) td {
-      background: #f8fafc;
-    }
-  }
-
-  :deep(blockquote) {
-    border-left: 4px solid #EC4899;
-    background: #fce7f3;
-    padding: 12px 16px;
-    margin: 16px 0;
-    border-radius: 0 8px 8px 0;
-
-    p {
-      margin: 0;
-      color: #9d174d;
-    }
-  }
+.ch-title {
+  font-size: 14px;
+  color: var(--ds-on-surface-variant);
+  line-height: 1.5;
+  word-break: break-all;
 }
 
-/* ===== 平板详情页 ===== */
-.detail-page {
+/* ===== 抽屉 ===== */
+.drawer-header {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background: #fff;
+  gap: 6px;
 }
 
-.detail-header {
+.drawer-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ds-on-surface);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.drawer-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fff;
-  flex-shrink: 0;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.back-btn {
-  display: flex;
+.drawer-file {
+  font-size: 12px;
+  color: var(--ds-outline);
+}
+
+.drawer-download {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
-  color: #475569;
-  font-size: 14px;
+  font-size: 12px;
+  color: var(--ds-rose);
+  text-decoration: none;
   cursor: pointer;
-  min-width: 44px;
-  min-height: 44px;
+
+  &:hover { color: var(--ds-rose); filter: brightness(0.85); }
+}
+
+.drawer-content {
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.file-viewer {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.file-fallback {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  gap: 16px;
+  color: var(--ds-on-surface-variant);
+  font-size: 14px;
 
-  &:hover {
-    border-color: #EC4899;
-    color: #EC4899;
-  }
+  a { text-decoration: none; }
+
+  &-icon { color: var(--ds-outline); }
 }
 
-.detail-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* ===== Robot / 小屏适配 ===== */
+@media (max-width: 820px) {
+  .kn-header { padding: 12px 14px; }
+  .kn-title { font-size: 15px; }
 
-.detail-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px 16px;
-
-  .chapter-content {
-    :deep(h2) { font-size: 18px; }
-    :deep(p), :deep(li) { font-size: 16px; }
-    :deep(th), :deep(td) { font-size: 14px; }
-  }
-}
-
-/* ===== 平板列表模式：目录全屏 ===== */
-.is-tablet {
-  .knowledge-layout {
+  .kn-body {
     flex-direction: column;
+    overflow-y: auto;
+    padding: 10px;
   }
 
-  .catalog-panel {
-    width: 100%;
-    flex: 1;
-    border-right: none;
+  .kn-col {
+    flex: none;
+    overflow: visible;
   }
 
-  .tree-node {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    font-size: 16px;
-    min-height: 44px;
-
-    &.level-2 { font-size: 15px; }
-    &.level-3 { font-size: 14px; }
+  .book-card {
+    flex: none;
+    min-height: auto;
   }
+
+  .ch-row { padding: 10px; }
+  .ch-title { font-size: 15px; }
 }
 </style>

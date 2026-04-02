@@ -2,36 +2,26 @@
   <div class="equipdata-page">
     <!-- Data type tab bar — always visible -->
     <nav class="data-tabs">
-      <a
-        v-for="cat in mainCategories"
-        :key="cat.id"
-        class="data-tab"
-        :class="{
-          active: activeCategory === String(cat.id),
-          disabled: cat.enabled === '0'
-        }"
-        @click="cat.enabled !== '0' && switchCategory(String(cat.id))"
-      >
-        {{ cat.categoryName }}
-        <span v-if="cat.enabled === '0'" class="tab-badge">*</span>
-      </a>
+      <template v-for="(cat, idx) in mainCategories" :key="cat.id">
+        <a
+          class="data-tab"
+          :class="{
+            active: activeCategory === String(cat.id),
+            disabled: cat.enabled === '0'
+          }"
+          @click="cat.enabled !== '0' && switchCategory(String(cat.id))"
+        >
+          {{ cat.categoryName }}
+          <span v-if="cat.enabled === '0'" class="tab-badge">*</span>
+        </a>
+        <!-- 分隔线：维修|检验、检测|风险、监测|基础信息 -->
+        <span v-if="tabSeparatorAfter.has(idx)" class="tab-divider"></span>
+      </template>
       <!-- Fallback static tabs while categories load -->
       <template v-if="mainCategories.length === 0 && !categoriesLoaded">
         <a v-for="name in defaultTabNames" :key="name" class="data-tab placeholder">{{ name }}</a>
       </template>
     </nav>
-
-    <!-- Sub-category tags (below tabs, above content) -->
-    <div class="sub-categories" v-if="subCategories.length > 0">
-      <el-check-tag
-        v-for="sub in subCategories"
-        :key="sub.id"
-        :checked="activeSubCategory === sub.id"
-        @change="activeSubCategory = sub.id"
-      >
-        {{ sub.categoryName }}
-      </el-check-tag>
-    </div>
 
     <!-- No equipment selected prompt -->
     <div v-if="!selectedEquipment" class="no-equip-state">
@@ -58,14 +48,20 @@
 
           <!-- Year picker mode -->
           <div v-if="currentDateMode === 'year'" class="year-picker-card">
+            <div class="year-picker-label">选择数据年份</div>
             <el-date-picker
               v-model="selectedYear"
               type="year"
               placeholder="选择年份"
               value-format="YYYY"
+              :teleported="true"
               @change="loadDataList"
               style="width: 100%"
             />
+            <div class="year-picker-hint">
+              <el-icon color="#003178"><Calendar /></el-icon>
+              <span>{{ selectedYear || '未选择' }}年 · {{ currentCategoryName }}</span>
+            </div>
           </div>
 
           <!-- Custom calendar -->
@@ -143,6 +139,7 @@
             :on-success="onUploadSuccess"
             :on-error="onUploadError"
             :show-file-list="false"
+            name="files"
             multiple
             accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.csv"
             class="hidden-upload"
@@ -179,21 +176,31 @@
           <div v-else class="file-list" v-loading="fileLoading">
             <template v-for="record in dataRecords" :key="record.id">
               <div v-for="file in record.files || []" :key="file.id" class="file-item">
-                <div class="file-icon">
+                <div class="file-icon clickable" @click="openDrawer(file)">
                   <el-icon v-if="file.fileType === 'image'" :size="24" color="#10b981"><Picture /></el-icon>
                   <el-icon v-else-if="file.fileType === 'pdf'" :size="24" color="#ef4444"><Document /></el-icon>
                   <el-icon v-else-if="file.fileType === 'excel'" :size="24" color="#3b82f6"><Grid /></el-icon>
                   <el-icon v-else :size="24" color="#94a3b8"><Document /></el-icon>
                 </div>
                 <div class="file-info">
-                  <div class="file-name">{{ file.fileName }}</div>
+                  <div class="file-name clickable" @click="openDrawer(file)">{{ file.fileName }}</div>
                   <div class="file-meta">{{ formatSize(file.fileSize) }} · {{ file.fileType }}</div>
                 </div>
-                <div class="file-status">
-                  <el-tag size="small" :type="preprocessTagType(file.preprocessStatus)">
-                    {{ preprocessLabel(file.preprocessStatus) }}
+                <div class="file-stages">
+                  <el-tag size="small" :type="stageTagType(file.preprocessStatus)">
+                    预处理: {{ stageLabel(file.preprocessStatus) }}
                   </el-tag>
+                  <el-tag size="small" :type="stageTagType(file.ocrStatus)">
+                    OCR: {{ stageLabel(file.ocrStatus) }}
+                  </el-tag>
+                  <el-tag v-if="file.structuredData" size="small" type="success">已结构化</el-tag>
+                  <el-tag v-else-if="file.ocrStatus === 'DONE'" size="small" type="warning">待结构化</el-tag>
                 </div>
+                <el-button
+                  v-if="file.structuredData || file.ocrStatus === 'DONE'"
+                  link type="primary" icon="View"
+                  @click="openStructuredView(file)"
+                >查看</el-button>
                 <el-button link type="danger" icon="Delete" @click="handleDeleteFile(file)" />
               </div>
             </template>
@@ -201,6 +208,41 @@
         </div>
       </section>
     </template>
+
+    <!-- File detail drawer -->
+    <el-drawer v-model="drawerVisible" :title="drawerFile?.fileName" size="520px" direction="rtl" destroy-on-close>
+      <div v-if="drawerFile" class="drawer-content">
+        <!-- 原始数据 -->
+        <div class="drawer-section">
+          <h4>原始数据</h4>
+          <img v-if="drawerFile.fileType === 'image'" :src="fileUrl(drawerFile.filePath)" class="drawer-img" />
+          <iframe v-else-if="drawerFile.fileType === 'pdf'" :src="fileUrl(drawerFile.filePath)" class="drawer-pdf"></iframe>
+          <div v-else class="drawer-nopreview">该文件类型暂不支持预览</div>
+        </div>
+        <!-- 预处理结果 -->
+        <div v-if="drawerFile.preprocessedPath" class="drawer-section">
+          <h4>预处理结果（二值化+纠偏）</h4>
+          <img :src="fileUrl(drawerFile.preprocessedPath)" class="drawer-img" />
+        </div>
+        <!-- 增强结果 -->
+        <div v-if="drawerFile.enhancedPath" class="drawer-section">
+          <h4>AI增强结果</h4>
+          <img :src="fileUrl(drawerFile.enhancedPath)" class="drawer-img" />
+        </div>
+        <!-- 处理状态 -->
+        <div class="drawer-section">
+          <h4>处理状态</h4>
+          <div class="drawer-status-row">
+            <span>预处理:</span>
+            <el-tag size="small" :type="stageTagType(drawerFile.preprocessStatus)">{{ stageLabel(drawerFile.preprocessStatus) }}</el-tag>
+          </div>
+          <div class="drawer-status-row">
+            <span>OCR:</span>
+            <el-tag size="small" :type="stageTagType(drawerFile.ocrStatus)">{{ stageLabel(drawerFile.ocrStatus) }}</el-tag>
+          </div>
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -211,7 +253,7 @@ import {
   Picture, Document, Grid, UploadFilled, CirclePlus, Clock, Monitor,
   Calendar, ArrowLeft, ArrowRight, InfoFilled
 } from '@element-plus/icons-vue'
-import { listCategories, listEquipData, getDataFiles, getDataDates, delDataFile } from '@/api/intellect/equipdata'
+import { listCategories, listEquipData, getDataFiles, getDataDates, delDataFile, getFilesStatus } from '@/api/intellect/equipdata'
 import { getToken } from '@/utils/auth'
 import useEquipmentStore from '@/store/modules/equipment'
 
@@ -224,7 +266,6 @@ const selectedEquipment = computed(() => equipmentStore.selectedEquipment)
 const allCategories = ref([])
 const categoriesLoaded = ref(false)
 const activeCategory = ref('')
-const activeSubCategory = ref(null)
 const showHistoryImport = ref(false)
 
 // Fallback tab names shown while database categories load
@@ -254,7 +295,6 @@ const uploadData = computed(() => {
     equipmentId: selectedEquipment.value?.id,
     categoryId: activeCategory.value,
   }
-  if (activeSubCategory.value) data.subCategoryId = activeSubCategory.value
   if (currentDateMode.value === 'day') {
     data.dataDate = formatDate(selectedDate.value)
   }
@@ -262,11 +302,9 @@ const uploadData = computed(() => {
 })
 
 // Computed
-const mainCategories = computed(() => allCategories.value.filter(c => c.parentId === 0))
-const subCategories = computed(() => {
-  if (!activeCategory.value) return []
-  return allCategories.value.filter(c => String(c.parentId) === activeCategory.value)
-})
+const mainCategories = computed(() => allCategories.value.filter(c => String(c.parentId) === '0'))
+// 分隔线位置：维修(idx=2)后、检测(idx=4)后、监测(idx=8)后
+const tabSeparatorAfter = computed(() => new Set([2, 4, 8]))
 const currentDateMode = computed(() => {
   const cat = mainCategories.value.find(c => String(c.id) === activeCategory.value)
   return cat ? cat.dateMode : 'day'
@@ -353,7 +391,6 @@ async function loadCategories() {
 
 function switchCategory(id) {
   activeCategory.value = id
-  activeSubCategory.value = null
   if (selectedEquipment.value) {
     loadDataList()
     loadDataDates()
@@ -408,8 +445,6 @@ watch(selectedEquipment, () => {
 })
 watch(selectedDate, () => { if (selectedEquipment.value) loadDataList() })
 watch(selectedYear, () => { if (selectedEquipment.value) loadDataList() })
-watch(activeSubCategory, () => { if (selectedEquipment.value) loadDataList() })
-
 async function loadDataList() {
   if (!selectedEquipment.value || !activeCategory.value) return
   fileLoading.value = true
@@ -422,6 +457,7 @@ async function loadDataList() {
   if (currentDateMode.value === 'day') {
     params.dataDate = formatDate(selectedDate.value)
   }
+  // year 和 none 模式不传 dataDate，查询该分类所有数据
   try {
     const res = await listEquipData(params)
     const records = res.rows || []
@@ -460,9 +496,13 @@ function beforeUpload(file) {
 
 function onUploadSuccess(res) {
   if (res.code === 200) {
-    ElMessage.success('上传成功')
+    ElMessage.success('上传成功，系统正在自动处理...')
     loadDataList()
     loadDataDates()
+    // Start polling for processing status
+    if (res.data?.id) {
+      startPolling(res.data.id)
+    }
   } else {
     ElMessage.error(res.msg || '上传失败')
   }
@@ -477,6 +517,62 @@ function handleDeleteFile(file) {
   }).catch(() => {})
 }
 
+// --- Polling for async processing status ---
+const emit = defineEmits(['open-structured-view'])
+let pollingTimer = null
+let pollingDataIds = new Set()
+
+function startPolling(dataId) {
+  pollingDataIds.add(dataId)
+  if (pollingTimer) return // already running
+  pollingTimer = setInterval(async () => {
+    for (const id of [...pollingDataIds]) {
+      try {
+        const res = await getFilesStatus(id)
+        const files = res.data || []
+        // Update local state
+        const record = dataRecords.value.find(r => String(r.id) === String(id))
+        if (record) record.files = files
+        // Check if all files done
+        const allDone = files.every(f => f.ocrStatus === 'DONE' || f.ocrStatus === 'FAILED' || f.fileType === 'other')
+        if (allDone) {
+          pollingDataIds.delete(id)
+        }
+      } catch (e) {
+        console.warn('Polling failed for dataId:', id, e)
+      }
+    }
+    if (pollingDataIds.size === 0) {
+      clearInterval(pollingTimer)
+      pollingTimer = null
+    }
+  }, 3000)
+}
+
+function openStructuredView(file) {
+  emit('open-structured-view', file)
+}
+
+// --- File detail drawer ---
+const drawerVisible = ref(false)
+const drawerFile = ref(null)
+
+function openDrawer(file) {
+  drawerFile.value = file
+  drawerVisible.value = true
+}
+
+function fileUrl(path) {
+  if (!path) return ''
+  return import.meta.env.VITE_APP_BASE_API + path
+}
+
+// Clean up on unmount
+import { onUnmounted } from 'vue'
+onUnmounted(() => {
+  if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null }
+})
+
 function formatDate(d) {
   if (!d) return ''
   const date = new Date(d)
@@ -490,11 +586,11 @@ function formatSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
 }
 
-function preprocessTagType(status) {
+function stageTagType(status) {
   return { NONE: 'info', PROCESSING: '', DONE: 'success', FAILED: 'danger' }[status] || 'info'
 }
 
-function preprocessLabel(status) {
+function stageLabel(status) {
   return { NONE: '待处理', PROCESSING: '处理中', DONE: '已完成', FAILED: '出错' }[status] || status
 }
 </script>
@@ -511,12 +607,11 @@ function preprocessLabel(status) {
   display: flex;
   align-items: center;
   padding: 0 24px;
-  border-bottom: 1px solid #f1f5f9;
   overflow-x: auto;
   white-space: nowrap;
   scrollbar-width: none;
   flex-shrink: 0;
-  background: #fff;
+  background: var(--ds-surface-container-lowest);
 
   &::-webkit-scrollbar { display: none; }
 }
@@ -527,16 +622,16 @@ function preprocessLabel(status) {
   margin-right: 28px;
   font-size: 13px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--ds-on-surface-variant);
   cursor: pointer;
   transition: color 0.2s;
   text-decoration: none;
   flex-shrink: 0;
 
-  &:hover { color: #003178; }
+  &:hover { color: var(--ds-primary); }
 
   &.active {
-    color: #003178;
+    color: var(--ds-primary);
     font-weight: 700;
 
     &::after {
@@ -546,34 +641,36 @@ function preprocessLabel(status) {
       left: 0;
       right: 0;
       height: 2px;
-      background: #003178;
+      background: var(--ds-primary);
       border-radius: 1px;
     }
   }
 
   &.disabled {
-    color: #cbd5e1;
+    color: var(--ds-outline-variant);
     cursor: not-allowed;
-    &:hover { color: #cbd5e1; }
+    &:hover { color: var(--ds-outline-variant); }
   }
 
   &.placeholder {
-    color: #cbd5e1;
+    color: var(--ds-outline-variant);
     cursor: default;
   }
 
   .tab-badge {
-    color: #cbd5e1;
+    color: var(--ds-outline-variant);
     font-size: 11px;
   }
 }
 
-.sub-categories {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 12px 24px 0;
+.tab-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--ds-outline-variant);
+  margin: 0 6px;
   flex-shrink: 0;
+  align-self: center;
+  opacity: 0.5;
 }
 
 /* No equipment state */
@@ -584,7 +681,7 @@ function preprocessLabel(status) {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #94a3b8;
+  color: var(--ds-outline);
   font-size: 15px;
 }
 
@@ -617,13 +714,13 @@ function preprocessLabel(status) {
   gap: 6px;
   padding: 9px 16px;
   border: none;
-  border-radius: 8px;
-  background: #003178;
-  color: #fff;
+  border-radius: var(--ds-radius);
+  background: var(--ds-primary);
+  color: var(--ds-on-primary);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 49, 120, 0.25);
+  box-shadow: var(--ds-shadow-sm);
   transition: all 0.2s;
   white-space: nowrap;
 
@@ -635,23 +732,23 @@ function preprocessLabel(status) {
   align-items: center;
   gap: 6px;
   padding: 9px 16px;
-  border: 1px solid #fbbf24;
-  border-radius: 8px;
-  background: #fffbeb;
-  color: #92400e;
+  border: none;
+  border-radius: var(--ds-radius);
+  background: var(--ds-surface-container-low);
+  color: var(--ds-warning);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 
-  &:hover { background: #fef3c7; }
+  &:hover { background: var(--ds-surface-container); }
 }
 
 /* Calendar card */
 .calendar-card {
-  background: #eff4ff;
-  border-radius: 12px;
+  background: var(--ds-surface-container-low);
+  border-radius: var(--ds-radius-lg);
   padding: 20px;
 }
 
@@ -670,10 +767,10 @@ function preprocessLabel(status) {
 
 .month-count {
   font-size: 11px;
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--ds-surface-container);
+  color: var(--ds-on-surface-variant);
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: var(--ds-radius-full);
 }
 
 .calendar-nav {
@@ -688,14 +785,14 @@ function preprocessLabel(status) {
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: 6px;
-  background: #fff;
-  color: #475569;
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-surface-container-lowest);
+  color: var(--ds-on-surface-variant);
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--ds-shadow-sm);
   transition: background 0.2s;
 
-  &:hover { background: #f1f5f9; }
+  &:hover { background: var(--ds-surface-container-low); }
 }
 
 .calendar-title {
@@ -705,14 +802,14 @@ function preprocessLabel(status) {
   span {
     font-size: 14px;
     font-weight: 700;
-    color: #334155;
+    color: var(--ds-on-surface);
   }
 }
 
 .today-link {
   border: none;
   background: none;
-  color: #003178;
+  color: var(--ds-primary);
   font-size: 11px;
   font-weight: 700;
   text-decoration: underline;
@@ -730,7 +827,7 @@ function preprocessLabel(status) {
   span {
     font-size: 10px;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--ds-outline);
   }
 }
 
@@ -748,31 +845,31 @@ function preprocessLabel(status) {
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 8px;
-  background: #fff;
-  color: #334155;
+  border-radius: var(--ds-radius);
+  background: var(--ds-surface-container-lowest);
+  color: var(--ds-on-surface);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
 
-  &:hover:not(.other) { background: #dbeafe; }
+  &:hover:not(.other) { background: var(--ds-surface-container-high); }
 
   &.other {
-    color: #cbd5e1;
+    color: var(--ds-outline-variant);
     background: transparent;
     cursor: default;
   }
 
   &.selected {
-    background: #003178;
-    color: #fff;
+    background: var(--ds-primary);
+    color: var(--ds-on-primary);
     font-weight: 700;
     box-shadow: 0 0 0 3px rgba(0, 49, 120, 0.15), 0 0 0 6px rgba(0, 49, 120, 0.06);
   }
 
   &.today:not(.selected) {
-    border: 2px solid #f59e0b;
+    border: 2px solid var(--ds-warning);
   }
 
   &.has-data .day-count {
@@ -785,7 +882,7 @@ function preprocessLabel(status) {
   position: absolute;
   bottom: 2px;
   font-size: 7px;
-  color: #003178;
+  color: var(--ds-primary);
   font-weight: 700;
 }
 
@@ -795,7 +892,7 @@ function preprocessLabel(status) {
   gap: 12px;
   margin-top: 12px;
   font-size: 10px;
-  color: #64748b;
+  color: var(--ds-on-surface-variant);
 }
 
 .legend-item {
@@ -809,7 +906,7 @@ function preprocessLabel(status) {
   height: 8px;
   border-radius: 50%;
 
-  &.today { background: #f59e0b; }
+  &.today { background: var(--ds-warning); }
 }
 
 .legend-box {
@@ -817,12 +914,12 @@ function preprocessLabel(status) {
   height: 14px;
   border-radius: 3px;
   background: rgba(0, 49, 120, 0.08);
-  border: 1px solid #003178;
+  border: 1px solid var(--ds-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 7px;
-  color: #003178;
+  color: var(--ds-primary);
   font-weight: 700;
   transform: scale(0.8);
 }
@@ -830,15 +927,15 @@ function preprocessLabel(status) {
 .legend-hint {
   flex: 1;
   text-align: right;
-  color: #94a3b8;
+  color: var(--ds-outline);
 }
 
 /* Tip card */
 .tip-card {
-  background: #eff4ff;
-  border-radius: 12px;
+  background: var(--ds-surface-container-low);
+  border-radius: var(--ds-radius-lg);
   padding: 16px 20px;
-  border-left: 4px solid #003178;
+  border-left: 4px solid var(--ds-primary);
 }
 
 .tip-header {
@@ -850,22 +947,40 @@ function preprocessLabel(status) {
   span {
     font-size: 13px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--ds-on-surface);
   }
 }
 
 .tip-text {
   font-size: 12px;
-  color: #475569;
+  color: var(--ds-on-surface-variant);
   line-height: 1.6;
   margin: 0;
 }
 
 /* Year picker card */
 .year-picker-card {
-  background: #eff4ff;
-  border-radius: 12px;
+  background: var(--ds-surface-container-low);
+  border-radius: var(--ds-radius-lg);
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.year-picker-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ds-on-surface);
+}
+
+.year-picker-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ds-on-surface-variant);
+  padding-top: 4px;
 }
 
 /* Right file column */
@@ -896,15 +1011,15 @@ function preprocessLabel(status) {
 .file-date {
   font-size: 17px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--ds-on-surface);
 }
 
 .file-count {
   font-size: 11px;
-  background: #f1f5f9;
-  color: #94a3b8;
+  background: var(--ds-surface-container-low);
+  color: var(--ds-outline);
   padding: 2px 10px;
-  border-radius: 20px;
+  border-radius: var(--ds-radius-full);
 }
 
 .hidden-upload {
@@ -917,9 +1032,8 @@ function preprocessLabel(status) {
 /* Empty state */
 .empty-state {
   flex: 1;
-  border: 2px dashed #e2e8f0;
-  border-radius: 16px;
-  background: rgba(248, 250, 252, 0.5);
+  background: var(--ds-surface-container-low);
+  border-radius: var(--ds-radius-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -933,25 +1047,24 @@ function preprocessLabel(status) {
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: #fff;
-  border: 1px solid #f1f5f9;
+  background: var(--ds-surface-container-lowest);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 24px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--ds-shadow-sm);
 }
 
 .empty-title {
   font-size: 18px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--ds-on-surface);
   margin: 0 0 8px 0;
 }
 
 .empty-desc {
   font-size: 13px;
-  color: #64748b;
+  color: var(--ds-on-surface-variant);
   margin: 0 0 28px 0;
   max-width: 320px;
   line-height: 1.6;
@@ -961,7 +1074,7 @@ function preprocessLabel(status) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--ds-space-4);
   width: 100%;
   max-width: 280px;
 }
@@ -970,21 +1083,21 @@ function preprocessLabel(status) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--ds-space-2);
   width: 100%;
   padding: 14px 0;
   border: none;
-  border-radius: 12px;
-  background: #003178;
-  color: #fff;
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-primary);
+  color: var(--ds-on-primary);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 49, 120, 0.3);
+  box-shadow: var(--ds-shadow-md);
   transition: all 0.2s;
 
   &:hover {
-    box-shadow: 0 6px 24px rgba(0, 49, 120, 0.4);
+    box-shadow: var(--ds-shadow-lg);
     transform: translateY(-1px);
   }
 }
@@ -992,7 +1105,7 @@ function preprocessLabel(status) {
 .btn-batch-link {
   border: none;
   background: none;
-  color: #003178;
+  color: var(--ds-primary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -1004,9 +1117,9 @@ function preprocessLabel(status) {
 .drag-hint {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 32px;
-  color: #94a3b8;
+  gap: var(--ds-space-3);
+  margin-top: var(--ds-space-8);
+  color: var(--ds-outline);
 
   span {
     font-size: 10px;
@@ -1020,7 +1133,7 @@ function preprocessLabel(status) {
 .drag-line {
   width: 48px;
   height: 1px;
-  background: #e2e8f0;
+  background: var(--ds-surface-container);
 }
 
 /* File list */
@@ -1032,23 +1145,40 @@ function preprocessLabel(status) {
 .file-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid #f1f5f9;
-  border-radius: 10px;
-  margin-bottom: 8px;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-3) var(--ds-space-4);
+  border-radius: var(--ds-radius-lg);
+  margin-bottom: var(--ds-space-2);
   transition: all 0.2s;
-  background: #fff;
+  background: var(--ds-surface-container-lowest);
+  box-shadow: var(--ds-shadow-sm);
 
   &:hover {
-    border-color: #bfdbfe;
-    box-shadow: 0 2px 8px rgba(0, 49, 120, 0.06);
+    box-shadow: var(--ds-shadow-md);
   }
 }
 
 .file-icon { flex-shrink: 0; }
+.file-icon.clickable, .file-name.clickable { cursor: pointer; }
+.file-name.clickable:hover { color: var(--ds-primary); text-decoration: underline; }
+
+/* Drawer styles */
+.drawer-content { padding: 0 4px; }
+.drawer-section {
+  margin-bottom: 20px;
+  h4 { font-size: 13px; font-weight: 600; color: var(--ds-on-surface); margin: 0 0 8px 0; }
+}
+.drawer-img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; }
+.drawer-pdf { width: 100%; height: 400px; border: none; border-radius: 8px; }
+.drawer-nopreview { color: #9ca3af; font-size: 13px; padding: 20px; text-align: center; }
+.drawer-status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
 .file-info { flex: 1; min-width: 0; }
-.file-name { font-size: 13px; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.file-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-.file-status { flex-shrink: 0; }
+.file-name { font-size: 13px; color: var(--ds-on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-meta { font-size: 11px; color: var(--ds-outline); margin-top: 2px; }
+.file-stages {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
 </style>

@@ -1,14 +1,18 @@
 package com.clda.web.controller.intellect;
 
 import com.clda.common.annotation.Log;
+import com.clda.common.config.CldaConfig;
 import com.clda.common.core.controller.BaseController;
 import com.clda.common.core.domain.AjaxResult;
 import com.clda.common.enums.BusinessType;
+import com.clda.common.utils.SecurityUtils;
+import com.clda.common.utils.file.FileUploadUtils;
 import com.clda.intellect.domain.KnowledgeChapter;
 import com.clda.intellect.service.IKnowledgeChapterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +38,31 @@ public class KnowledgeChapterController extends BaseController {
     @PostMapping
     public AjaxResult addChapter(@RequestBody KnowledgeChapter chapter) {
         return toAjax(chapterService.insertChapter(chapter));
+    }
+
+    /** 上传章节文件 */
+    @PreAuthorize("@ss.hasPermi('crane:knowledge:add')")
+    @Log(title = "章节管理", businessType = BusinessType.INSERT)
+    @PostMapping("/upload")
+    public AjaxResult uploadChapter(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("bookId") Long bookId,
+            @RequestParam("title") String title,
+            @RequestParam(value = "orderNum", required = false, defaultValue = "0") Integer orderNum) throws Exception {
+        String uploadPath = CldaConfig.getUploadPath() + "/knowledge";
+        String filePath = FileUploadUtils.upload(uploadPath, file);
+
+        KnowledgeChapter chapter = new KnowledgeChapter();
+        chapter.setBookId(bookId);
+        chapter.setParentId(0L);
+        chapter.setTitle(title);
+        chapter.setLevel(1);
+        chapter.setOrderNum(orderNum);
+        chapter.setFileName(file.getOriginalFilename());
+        chapter.setFilePath(filePath);
+        chapter.setCreateBy(SecurityUtils.getUsername());
+        chapterService.insertChapter(chapter);
+        return success(chapter);
     }
 
     @PreAuthorize("@ss.hasPermi('crane:knowledge:edit')")

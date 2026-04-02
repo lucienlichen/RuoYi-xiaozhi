@@ -14,8 +14,10 @@ import com.clda.common.core.page.TableDataInfo;
 import com.clda.common.enums.BusinessType;
 import com.clda.common.utils.SecurityUtils;
 import com.clda.intellect.domain.DataCategory;
+import com.clda.intellect.domain.DataFile;
 import com.clda.intellect.domain.EquipmentData;
 import com.clda.intellect.mapper.DataCategoryMapper;
+import com.clda.intellect.service.IDataProcessingService;
 import com.clda.intellect.service.IEquipmentDataService;
 
 /**
@@ -29,6 +31,7 @@ import com.clda.intellect.service.IEquipmentDataService;
 public class EquipmentDataController extends BaseController {
 
     private final IEquipmentDataService equipmentDataService;
+    private final IDataProcessingService dataProcessingService;
     private final DataCategoryMapper dataCategoryMapper;
 
     /** 查询数据分类(含子分类) */
@@ -103,5 +106,30 @@ public class EquipmentDataController extends BaseController {
     @DeleteMapping("/file/{fileId}")
     public AjaxResult removeFile(@PathVariable Long fileId) {
         return toAjax(equipmentDataService.deleteFile(fileId));
+    }
+
+    /** 批量查询文件处理状态(前端轮询用) */
+    @GetMapping("/files/status")
+    public AjaxResult filesStatus(@RequestParam Long dataId) {
+        List<DataFile> files = equipmentDataService.selectFilesByDataId(dataId);
+        return success(files);
+    }
+
+    /** 获取单个文件的结构化数据 */
+    @GetMapping("/file/structured/{fileId}")
+    public AjaxResult structuredData(@PathVariable Long fileId) {
+        DataFile file = equipmentDataService.selectFileById(fileId);
+        if (file == null) {
+            return error("文件不存在");
+        }
+        return success(file);
+    }
+
+    /** 手动重新处理文件 */
+    @PreAuthorize("@ss.hasPermi('crane:equipdata:upload')")
+    @PostMapping("/file/reprocess/{fileId}")
+    public AjaxResult reprocessFile(@PathVariable Long fileId) {
+        dataProcessingService.reprocessFile(fileId);
+        return success("已触发重新处理");
     }
 }

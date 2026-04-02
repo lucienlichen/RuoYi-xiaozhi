@@ -1,147 +1,211 @@
 <template>
-  <div class="regulations-view" :class="{ 'is-tablet': isTablet }">
-
-    <!-- PC 左右分栏 / 平板列表页 -->
-    <div v-show="!isTablet || !isDetailMode" class="regulations-layout">
-
-      <!-- 左侧文档库面板 -->
-      <aside class="doc-panel">
-        <!-- 分类 Tabs -->
-        <div class="category-tabs">
-          <button
-            v-for="cat in categories"
-            :key="cat.id"
-            class="cat-tab"
-            :class="{ active: activeCategory === cat.id }"
-            @click="switchCategory(cat.id)"
-          >
-            {{ cat.label }}
-          </button>
-        </div>
-
-        <!-- 文档列表 -->
-        <div class="doc-list" v-loading="listLoading">
-          <div
-            v-for="doc in filteredDocs"
-            :key="doc.id"
-            class="doc-item"
-            :class="{ active: selectedDocId === doc.id }"
-            @click="selectDoc(doc.id)"
-          >
-            <el-icon class="doc-icon" :size="16"><Document /></el-icon>
-            <div class="doc-info">
-              <span class="doc-name">{{ doc.title }}</span>
-              <span v-if="doc.docNo" class="doc-no">{{ doc.docNo }}</span>
+  <div class="regulations-view">
+    <!-- PC三列布局 -->
+    <div class="reg-body" v-loading="loading">
+      <!-- 第一列：法律法规 + 市场监管规章 -->
+      <div class="reg-col">
+        <div v-for="cat in leftCats" :key="cat.id" class="cat-card">
+          <div class="cat-card-header">
+            <span class="cat-dot" :style="{ background: cat.color }" />
+            <span class="cat-label">{{ cat.label }}</span>
+            <span class="cat-badge" :style="{ background: cat.colorLight, color: cat.color }">{{ cat.docs.length }}</span>
+          </div>
+          <div class="cat-card-body">
+            <div
+              v-for="doc in cat.docs"
+              :key="doc.id"
+              class="doc-row"
+              :class="{ active: selectedDocId === doc.id }"
+              @click="openDoc(doc)"
+            >
+              <el-icon class="doc-row-icon" :size="15" :style="{ color: cat.color }"><Document /></el-icon>
+              <span class="doc-row-title">{{ doc.title }}</span>
             </div>
-            <el-icon class="doc-arrow" :size="14"><ArrowRight /></el-icon>
-          </div>
-          <div v-if="!listLoading && filteredDocs.length === 0" class="doc-empty">
-            <p>暂无{{ currentCategoryLabel }}文档</p>
+            <div v-if="!loading && cat.docs.length === 0" class="cat-empty">暂无文档</div>
           </div>
         </div>
-      </aside>
+      </div>
 
-      <!-- 右侧内容区（PC 显示） -->
-      <main v-if="!isTablet" class="content-panel">
-        <div v-if="!selectedDoc" class="content-empty">
-          <el-icon :size="48" color="#e2e8f0"><Document /></el-icon>
-          <p>请从左侧列表选择法规查阅</p>
-        </div>
-        <template v-else>
-          <div class="content-header">
-            <div class="content-title-row">
-              <h1 class="content-title">{{ selectedDoc.title }}</h1>
-              <span v-if="selectedDoc.docNo" class="content-docno">{{ selectedDoc.docNo }}</span>
+      <!-- 第二列：TSG技术规范 -->
+      <div class="reg-col">
+        <div v-for="cat in midCats" :key="cat.id" class="cat-card cat-card--full">
+          <div class="cat-card-header">
+            <span class="cat-dot" :style="{ background: cat.color }" />
+            <span class="cat-label">{{ cat.label }}</span>
+            <span class="cat-badge" :style="{ background: cat.colorLight, color: cat.color }">{{ cat.docs.length }}</span>
+          </div>
+          <div class="cat-card-body">
+            <div
+              v-for="doc in cat.docs"
+              :key="doc.id"
+              class="doc-row"
+              :class="{ active: selectedDocId === doc.id }"
+              @click="openDoc(doc)"
+            >
+              <el-icon class="doc-row-icon" :size="15" :style="{ color: cat.color }"><Document /></el-icon>
+              <span class="doc-row-title">{{ doc.title }}</span>
             </div>
-            <span v-if="selectedDoc.publishDate" class="content-date">发布日期：{{ selectedDoc.publishDate }}</span>
+            <div v-if="!loading && cat.docs.length === 0" class="cat-empty">暂无文档</div>
           </div>
-          <div class="content-body" v-loading="docLoading">
-            <div class="doc-content" v-html="selectedDoc.contentHtml" />
+        </div>
+      </div>
+
+      <!-- 第三列：标准 -->
+      <div class="reg-col">
+        <div v-for="cat in rightCats" :key="cat.id" class="cat-card cat-card--full">
+          <div class="cat-card-header">
+            <span class="cat-dot" :style="{ background: cat.color }" />
+            <span class="cat-label">{{ cat.label }}</span>
+            <span class="cat-badge" :style="{ background: cat.colorLight, color: cat.color }">{{ cat.docs.length }}</span>
           </div>
-        </template>
-      </main>
+          <div class="cat-card-body">
+            <div
+              v-for="doc in cat.docs"
+              :key="doc.id"
+              class="doc-row"
+              :class="{ active: selectedDocId === doc.id }"
+              @click="openDoc(doc)"
+            >
+              <el-icon class="doc-row-icon" :size="15" :style="{ color: cat.color }"><Document /></el-icon>
+              <span class="doc-row-title">{{ doc.title }}</span>
+            </div>
+            <div v-if="!loading && cat.docs.length === 0" class="cat-empty">暂无文档</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- 平板详情页 -->
-    <div v-if="isTablet && isDetailMode" class="detail-page">
-      <div class="detail-header">
-        <button class="back-btn" @click="isDetailMode = false">
-          <el-icon><ArrowLeft /></el-icon>
-          <span>返回</span>
-        </button>
-        <span class="detail-title">{{ selectedDoc?.title }}</span>
+    <!-- 右侧抽屉：原始文件预览 -->
+    <el-drawer
+      v-model="drawerVisible"
+      direction="rtl"
+      :size="drawerSize"
+      :close-on-click-modal="true"
+      destroy-on-close
+      @close="onDrawerClose"
+    >
+      <template #header>
+        <div class="drawer-header">
+          <h3 class="drawer-title">{{ selectedDoc?.title }}</h3>
+          <div class="drawer-meta">
+            <el-tag v-if="selectedDoc?.docNo" size="small" type="info">{{ selectedDoc.docNo }}</el-tag>
+            <span v-if="selectedDoc?.fileName" class="drawer-file">{{ selectedDoc.fileName }}</span>
+            <a class="drawer-download" :href="fileUrl" :download="selectedDoc?.fileName" target="_blank">
+              <el-icon :size="14"><Download /></el-icon> 下载原文件
+            </a>
+          </div>
+        </div>
+      </template>
+      <div class="drawer-content" v-loading="docLoading">
+        <!-- PDF 预览 -->
+        <VueOfficePdf v-if="fileType === 'pdf'" :src="fileUrl" class="file-viewer" />
+        <!-- DOCX 预览 -->
+        <VueOfficeDocx v-else-if="fileType === 'docx'" :src="fileUrl" class="file-viewer" />
+        <!-- 其他格式：下载提示 -->
+        <div v-else-if="selectedDoc && !docLoading" class="file-fallback">
+          <el-icon :size="48" color="#94a3b8"><Document /></el-icon>
+          <p>该文件格式（{{ fileExt }}）暂不支持在线预览</p>
+          <a :href="fileUrl" :download="selectedDoc?.fileName" target="_blank">
+            <el-button type="primary" icon="Download">下载文件查看</el-button>
+          </a>
+        </div>
       </div>
-      <div class="detail-body" v-loading="docLoading">
-        <div class="doc-content" v-html="selectedDoc?.contentHtml" />
-      </div>
-    </div>
-
+    </el-drawer>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { Document, ArrowRight, ArrowLeft } from '@element-plus/icons-vue'
+import { ref, computed, onMounted } from 'vue'
+import { Document, Download } from '@element-plus/icons-vue'
+import VueOfficePdf from '@vue-office/pdf'
+import VueOfficeDocx from '@vue-office/docx'
+import '@vue-office/docx/lib/index.css'
 import { listRegulations, getRegulation } from '@/api/intellect/regulation'
 
 const categories = [
-  { id: 'laws', label: '法律法规' },
-  { id: 'market_rules', label: '市场监管规章' },
-  { id: 'tsg', label: 'TSG技术规范' },
-  { id: 'standards', label: '标准' }
+  { id: 'laws', label: '法律法规', color: '#3b82f6', colorLight: '#dbeafe' },
+  { id: 'market_rules', label: '市场监管总局规章', color: '#8b5cf6', colorLight: '#ede9fe' },
+  { id: 'tsg', label: '特种设备安全技术规范TSG', color: '#f59e0b', colorLight: '#fef3c7' },
+  { id: 'standards', label: '标准', color: '#10b981', colorLight: '#d1fae5' }
 ]
 
-const allDocs = ref([])
-const listLoading = ref(false)
-
-function loadDocs() {
-  listLoading.value = true
-  listRegulations({ category: activeCategory.value, pageNum: 1, pageSize: 100 }).then(res => {
-    allDocs.value = res.rows || []
-    listLoading.value = false
-  })
-}
-
-const activeCategory = ref('laws')
+const allDocs = ref({})
+const loading = ref(false)
 const selectedDocId = ref(null)
 const selectedDoc = ref(null)
 const docLoading = ref(false)
-const isDetailMode = ref(false)
-const isTablet = ref(false)
+const drawerVisible = ref(false)
 
-function checkScreenSize() {
-  isTablet.value = window.innerWidth <= 820
+
+const drawerSize = computed(() => window.innerWidth <= 820 ? '92%' : '70%')
+
+const totalCount = computed(() =>
+  Object.values(allDocs.value).reduce((sum, docs) => sum + docs.length, 0)
+)
+
+function withDocs(id) {
+  const cat = categories.find(c => c.id === id)
+  return { ...cat, docs: allDocs.value[id] || [] }
+}
+
+const leftCats = computed(() => [withDocs('laws'), withDocs('market_rules')])
+const midCats = computed(() => [withDocs('tsg')])
+const rightCats = computed(() => [withDocs('standards')])
+
+/** 文件URL：filePath 以 /profile/ 开头，直接拼后端地址 */
+const fileUrl = computed(() => {
+  if (!selectedDoc.value?.filePath) return ''
+  return import.meta.env.VITE_APP_BASE_API + selectedDoc.value.filePath
+})
+
+const fileExt = computed(() => {
+  const name = selectedDoc.value?.fileName || ''
+  return name.split('.').pop().toLowerCase()
+})
+
+const fileType = computed(() => {
+  const ext = fileExt.value
+  if (ext === 'pdf') return 'pdf'
+  if (ext === 'docx') return 'docx'
+  return 'other'
+})
+
+async function loadAllDocs() {
+  loading.value = true
+  const results = await Promise.all(
+    categories.map(cat =>
+      listRegulations({ category: cat.id, pageNum: 1, pageSize: 200 })
+        .then(res => ({ id: cat.id, docs: res.rows || [] }))
+        .catch(() => ({ id: cat.id, docs: [] }))
+    )
+  )
+  const map = {}
+  results.forEach(r => { map[r.id] = r.docs })
+  allDocs.value = map
+  loading.value = false
+}
+
+async function openDoc(doc) {
+  selectedDocId.value = doc.id
+  drawerVisible.value = true
+  docLoading.value = true
+  try {
+    const res = await getRegulation(doc.id)
+    selectedDoc.value = res.data
+  } catch {
+    selectedDoc.value = doc
+  }
+  docLoading.value = false
+}
+
+function onDrawerClose() {
+  selectedDocId.value = null
+  selectedDoc.value = null
 }
 
 onMounted(() => {
-  checkScreenSize()
-  window.addEventListener('resize', checkScreenSize)
-  loadDocs()
+  loadAllDocs()
 })
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkScreenSize)
-})
-
-const filteredDocs = computed(() => allDocs.value)
-
-const currentCategoryLabel = computed(() => categories.find(c => c.id === activeCategory.value)?.label || '')
-
-function switchCategory(catId) {
-  activeCategory.value = catId
-  selectedDocId.value = null
-  selectedDoc.value = null
-  loadDocs()
-}
-
-async function selectDoc(docId) {
-  selectedDocId.value = docId
-  if (isTablet.value) isDetailMode.value = true
-  docLoading.value = true
-  const res = await getRegulation(docId)
-  selectedDoc.value = res.data
-  docLoading.value = false
-}
 </script>
 
 <style lang="scss" scoped>
@@ -149,361 +213,209 @@ async function selectDoc(docId) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #fff;
+  background: var(--ds-surface);
 }
 
-.regulations-layout {
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-}
 
-/* ===== 左侧文档库面板 ===== */
-.doc-panel {
-  width: 320px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid #e2e8f0;
-  background: #f8fafc;
-  overflow: hidden;
-}
 
-/* 分类 Tabs */
-.category-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 12px 12px 8px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fff;
-  flex-shrink: 0;
-}
-
-.cat-tab {
-  padding: 5px 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #fff;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-
-  &:hover {
-    border-color: #64748b;
-    color: #334155;
-  }
-
-  &.active {
-    background: #64748b;
-    border-color: #64748b;
-    color: #fff;
-    font-weight: 600;
-  }
-}
-
-/* 文档列表 */
-.doc-list {
+/* ===== 三列内容区 ===== */
+.reg-body {
   flex: 1;
-  overflow-y: auto;
-  padding: 8px 8px;
-}
-
-.doc-item {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-  margin-bottom: 2px;
-
-  &:hover {
-    background: #f1f5f9;
-  }
-
-  &.active {
-    background: #e2e8f0;
-    .doc-name { color: #1e293b; font-weight: 600; }
-    .doc-icon { color: #64748b; }
-  }
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-4);
+  overflow: hidden;
+  min-height: 0;
 }
 
-.doc-icon {
-  flex-shrink: 0;
-  color: #94a3b8;
-  margin-top: 2px;
-}
-
-.doc-info {
+.reg-col {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 12px;
+  overflow: hidden;
 }
 
-.doc-name {
-  font-size: 13px;
-  color: #374151;
-  line-height: 1.4;
-  word-break: break-all;
+/* ===== 分类卡片 ===== */
+.cat-card {
+  background: var(--ds-surface-container-lowest);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
 }
 
-.doc-no {
-  font-size: 11px;
-  color: #94a3b8;
+.cat-card--full {
+  flex: 1;
 }
 
-.doc-arrow {
+.cat-card-header {
   flex-shrink: 0;
-  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--ds-surface-container-low);
+}
+
+.cat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cat-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ds-on-surface);
+  flex: 1;
+}
+
+.cat-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--ds-radius-full);
+  flex-shrink: 0;
+}
+
+.cat-card-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 6px;
+}
+
+.cat-empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--ds-outline);
+  font-size: 13px;
+}
+
+/* ===== 文档行 ===== */
+.doc-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--ds-radius-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover { background: var(--ds-surface-container-low); }
+
+  &.active {
+    background: var(--ds-slate-surface);
+    .doc-row-title { color: var(--ds-slate); font-weight: 600; }
+  }
+}
+
+.doc-row-icon {
+  flex-shrink: 0;
   margin-top: 2px;
 }
 
-.doc-empty {
-  text-align: center;
-  padding: 40px 16px;
-  color: #94a3b8;
+.doc-row-title {
   font-size: 13px;
+  color: var(--ds-on-surface-variant);
+  line-height: 1.45;
+  word-break: break-all;
 }
 
-/* ===== 右侧内容区 ===== */
-.content-panel {
-  flex: 1;
+/* ===== 抽屉 ===== */
+.drawer-header {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  gap: 6px;
 }
 
-.content-empty {
-  flex: 1;
+.drawer-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ds-on-surface);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.drawer-meta {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: #94a3b8;
-  font-size: 14px;
-}
-
-.content-header {
-  flex-shrink: 0;
-  padding: 20px 32px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  background: #fff;
-}
-
-.content-title-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.content-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-}
-
-.content-docno {
+.drawer-file {
   font-size: 12px;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 2px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
+  color: var(--ds-outline);
 }
 
-.content-date {
-  display: block;
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 4px;
-}
-
-.content-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px 32px 32px;
-}
-
-/* ===== 文档内容渲染 ===== */
-.doc-content {
-  :deep(h2) {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0 0 16px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e2e8f0;
-  }
-
-  :deep(h3) {
-    font-size: 15px;
-    font-weight: 600;
-    color: #334155;
-    margin: 20px 0 10px;
-    padding-left: 10px;
-    border-left: 3px solid #64748b;
-  }
-
-  :deep(h4) {
-    font-size: 14px;
-    font-weight: 600;
-    color: #475569;
-    margin: 16px 0 8px;
-  }
-
-  :deep(p) {
-    font-size: 14px;
-    color: #374151;
-    line-height: 1.85;
-    margin-bottom: 12px;
-
-    &.doc-meta {
-      font-size: 12px;
-      color: #94a3b8;
-      font-style: italic;
-      margin-bottom: 20px;
-    }
-  }
-
-  :deep(ol), :deep(ul) {
-    padding-left: 22px;
-    margin-bottom: 12px;
-
-    li {
-      font-size: 14px;
-      color: #374151;
-      line-height: 1.8;
-      margin-bottom: 6px;
-    }
-  }
-
-  :deep(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 16px 0;
-    font-size: 13px;
-
-    th {
-      background: #f1f5f9;
-      padding: 9px 12px;
-      text-align: left;
-      font-weight: 600;
-      color: #374151;
-      border: 1px solid #e2e8f0;
-    }
-
-    td {
-      padding: 8px 12px;
-      color: #4b5563;
-      border: 1px solid #e2e8f0;
-      line-height: 1.6;
-    }
-
-    tr:nth-child(even) td {
-      background: #f8fafc;
-    }
-  }
-
-  :deep(strong) {
-    color: #1e293b;
-  }
-}
-
-/* ===== 平板详情页 ===== */
-.detail-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: #fff;
-}
-
-.detail-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fff;
-  flex-shrink: 0;
-}
-
-.back-btn {
-  display: flex;
+.drawer-download {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
-  color: #475569;
-  font-size: 14px;
+  font-size: 12px;
+  color: var(--ds-primary);
+  text-decoration: none;
   cursor: pointer;
-  min-width: 44px;
-  min-height: 44px;
+
+  &:hover { opacity: 0.8; }
+}
+
+.drawer-content {
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.file-viewer {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.file-fallback {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  gap: 16px;
+  color: var(--ds-on-surface-variant);
+  font-size: 14px;
 
-  &:hover {
-    border-color: #64748b;
-    color: #334155;
+  a { text-decoration: none; }
+}
+
+/* ===== Robot / 小屏适配 ===== */
+@media (max-width: 820px) {
+  .reg-header {
+    padding: 12px 14px;
   }
-}
 
-.detail-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .reg-title { font-size: 15px; }
 
-.detail-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 16px 32px;
-
-  .doc-content {
-    :deep(p), :deep(li) { font-size: 16px; }
-    :deep(th), :deep(td) { font-size: 14px; }
-  }
-}
-
-/* ===== 平板列表模式 ===== */
-.is-tablet {
-  .regulations-layout {
+  .reg-body {
     flex-direction: column;
+    overflow-y: auto;
+    padding: 10px;
   }
 
-  .doc-panel {
-    width: 100%;
-    flex: 1;
-    border-right: none;
+  .reg-col {
+    flex: none;
+    overflow: visible;
   }
 
-  .cat-tab {
-    font-size: 14px;
-    padding: 8px 14px;
-    min-height: 36px;
+  .cat-card {
+    flex: none;
+    min-height: auto;
   }
 
-  .doc-item {
-    padding: 12px 12px;
-    min-height: 44px;
-
-    .doc-name { font-size: 16px; }
-    .doc-no { font-size: 12px; }
-  }
+  .doc-row { padding: 10px; }
+  .doc-row-title { font-size: 15px; }
 }
 </style>

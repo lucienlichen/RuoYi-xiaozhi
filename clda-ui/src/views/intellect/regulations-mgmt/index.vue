@@ -36,13 +36,7 @@
       <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
       <el-table-column prop="docNo" label="文号/编号" width="160" show-overflow-tooltip />
       <el-table-column prop="publishDate" label="发布日期" width="110" />
-      <el-table-column prop="parseStatus" label="状态" width="80">
-        <template #default="scope">
-          <el-tag :type="statusType(scope.row.parseStatus)" size="small">
-            {{ statusLabel(scope.row.parseStatus) }}
-          </el-tag>
-        </template>
-      </el-table-column>
+      <el-table-column prop="fileName" label="文件" width="160" show-overflow-tooltip />
       <el-table-column prop="createTime" label="创建时间" width="160" />
       <el-table-column label="操作" width="180" fixed="right">
         <template #default="scope">
@@ -86,13 +80,13 @@
           >
             <el-button icon="Upload">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">支持 PDF、Word（.docx/.doc）、TXT，文件将自动解析为可读文本</div>
+              <div class="el-upload__tip">支持 PDF、Word（.docx/.doc）、TXT</div>
             </template>
           </el-upload>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button type="primary" @click="submitUpload" :loading="uploadDialog.loading">上传并解析</el-button>
+        <el-button type="primary" @click="submitUpload" :loading="uploadDialog.loading">上 传</el-button>
         <el-button @click="uploadDialog.open = false">取 消</el-button>
       </template>
     </el-dialog>
@@ -124,12 +118,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="正文内容">
-          <div style="border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;width:100%">
-            <QuillEditor v-model:content="editForm.contentHtml" content-type="html"
-              theme="snow" style="min-height:300px" />
-          </div>
-        </el-form-item>
       </el-form>
       <template #footer>
         <el-button type="primary" @click="submitEdit" :loading="editDialog.saving">保 存</el-button>
@@ -137,18 +125,12 @@
       </template>
     </el-dialog>
 
-    <!-- 预览对话框 -->
-    <el-dialog :title="previewTitle" v-model="previewOpen" width="760px" append-to-body>
-      <div class="doc-preview" v-html="previewContent" />
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { listRegulations, getRegulation, updateRegulation, deleteRegulation } from '@/api/intellect/regulation'
 import { getToken } from '@/utils/auth'
 
@@ -181,17 +163,6 @@ const editDialog = reactive({ open: false, saving: false })
 const editForm = ref({})
 const editFormRef = ref(null)
 
-// Preview
-const previewOpen = ref(false)
-const previewTitle = ref('')
-const previewContent = ref('')
-
-function statusType(s) {
-  return { DONE: 'success', FAILED: 'danger', NONE: 'info' }[s] || 'info'
-}
-function statusLabel(s) {
-  return { DONE: '已解析', FAILED: '解析失败', NONE: '未解析' }[s] || s
-}
 
 function getList() {
   loading.value = true
@@ -239,7 +210,7 @@ async function submitUpload() {
     })
     const json = await res.json()
     if (json.code === 200) {
-      ElMessage.success('上传成功，文档已解析')
+      ElMessage.success('上传成功')
       uploadDialog.open = false
       uploadForm.value = { title: '', category: queryParams.value.category, docNo: '', publishDate: '', file: null }
       fileUploadRef.value?.clearFiles()
@@ -256,7 +227,7 @@ async function submitUpload() {
 
 async function handleEdit(row) {
   const res = await getRegulation(row.id)
-  editForm.value = { ...res.data, contentHtml: res.data.contentHtml || '' }
+  editForm.value = { ...res.data }
   editDialog.open = true
 }
 
@@ -273,10 +244,11 @@ async function submitEdit() {
 }
 
 async function handlePreview(row) {
-  const res = await getRegulation(row.id)
-  previewTitle.value = res.data.title
-  previewContent.value = res.data.contentHtml || '<p>暂无内容</p>'
-  previewOpen.value = true
+  if (row.filePath) {
+    window.open(import.meta.env.VITE_APP_BASE_API + row.filePath, '_blank')
+  } else {
+    ElMessage.warning('该文档没有关联文件')
+  }
 }
 
 async function handleDelete() {
@@ -306,15 +278,5 @@ onMounted(() => getList())
   transition: all 0.15s;
   &:hover { color: #1e293b; }
   &.active { color: #64748b; font-weight: 600; border-bottom-color: #64748b; }
-}
-.doc-preview {
-  max-height: 60vh; overflow-y: auto;
-  :deep(h2) { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
-  :deep(h3) { font-size: 15px; font-weight: 600; margin: 16px 0 8px; }
-  :deep(p) { font-size: 14px; line-height: 1.8; margin-bottom: 10px; color: #374151; }
-  :deep(table) { width: 100%; border-collapse: collapse; margin: 12px 0;
-    th, td { border: 1px solid #e2e8f0; padding: 7px 10px; font-size: 13px; }
-    th { background: #f1f5f9; font-weight: 600; }
-  }
 }
 </style>

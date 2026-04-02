@@ -1,6 +1,7 @@
 package com.clda.web.controller.intellect;
 
 import com.clda.common.annotation.Log;
+import com.clda.common.config.CldaConfig;
 import com.clda.common.core.controller.BaseController;
 import com.clda.common.core.domain.AjaxResult;
 import com.clda.common.core.page.TableDataInfo;
@@ -21,7 +22,7 @@ public class RegulationDocController extends BaseController {
 
     private final IRegulationDocService docService;
 
-    /** 查询法规列表（分页，管理端及业务端共用） */
+    /** 查询法规列表（分页） */
     @GetMapping("/list")
     public TableDataInfo list(RegulationDoc query) {
         startPage();
@@ -29,13 +30,13 @@ public class RegulationDocController extends BaseController {
         return getDataTable(list);
     }
 
-    /** 查询法规详情（含 content_html） */
+    /** 查询法规详情 */
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
         return success(docService.selectDocById(id));
     }
 
-    /** 上传并解析法规文件 */
+    /** 上传法规文件（仅存储，不解析） */
     @PreAuthorize("@ss.hasPermi('crane:regulation:upload')")
     @Log(title = "法规管理", businessType = BusinessType.INSERT)
     @PostMapping("/upload")
@@ -50,7 +51,7 @@ public class RegulationDocController extends BaseController {
         return success(doc);
     }
 
-    /** 手动新增法规（无文件，直接录入内容） */
+    /** 手动新增法规 */
     @PreAuthorize("@ss.hasPermi('crane:regulation:add')")
     @Log(title = "法规管理", businessType = BusinessType.INSERT)
     @PostMapping

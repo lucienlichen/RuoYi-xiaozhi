@@ -1,5 +1,5 @@
 <template>
-  <div class="robot-login">
+  <div class="robot-login ds-dark">
     <!-- Circuit board decorative lines (same as login.vue) -->
     <div class="circuit-lines">
       <svg class="circuit-svg" viewBox="0 0 1376 768" preserveAspectRatio="xMidYMid slice">
@@ -429,7 +429,7 @@ function cleanup() {
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background: radial-gradient(ellipse at 50% 50%, #0c1f3d 0%, #070e1a 100%);
+  background: radial-gradient(ellipse at 50% 50%, var(--ds-surface-container) 0%, var(--ds-surface-container-lowest) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -452,9 +452,9 @@ function cleanup() {
   z-index: 1;
   width: 420px;
   padding: 40px 36px 28px;
-  background: rgba(10, 22, 46, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  border-radius: 16px;
+  background: var(--ds-glass-bg);
+  border: 1px solid var(--ds-glass-border);
+  border-radius: var(--ds-radius-lg);
   backdrop-filter: blur(20px);
   box-shadow:
     0 0 40px rgba(56, 189, 248, 0.06),
@@ -488,7 +488,7 @@ function cleanup() {
   text-align: center;
   font-size: 20px;
   font-weight: 600;
-  color: #e0f2fe;
+  color: var(--ds-on-surface);
   margin: 0 0 24px 0;
   letter-spacing: 2px;
   text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
@@ -536,9 +536,9 @@ function cleanup() {
   position: relative;
   width: 280px;
   height: 210px;
-  border-radius: 12px;
+  border-radius: var(--ds-radius-lg);
   overflow: hidden;
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  border: 1px solid var(--ds-outline-variant);
   box-shadow: 0 0 20px rgba(56, 189, 248, 0.08);
 }
 
@@ -602,7 +602,7 @@ function cleanup() {
   }
 
   .recognized-sub {
-    color: rgba(148, 163, 184, 0.8);
+    color: var(--ds-on-surface-variant);
     font-size: 13px;
     margin: 0;
   }
@@ -621,10 +621,10 @@ function cleanup() {
 .progress-track {
   width: 100%;
   height: 6px;
-  background: rgba(15, 30, 58, 0.8);
+  background: var(--ds-surface-container-low);
   border-radius: 3px;
   overflow: hidden;
-  border: 1px solid rgba(56, 189, 248, 0.1);
+  border: 1px solid var(--ds-outline-variant);
 }
 
 .progress-fill {
@@ -642,7 +642,7 @@ function cleanup() {
 
 .progress-text {
   text-align: center;
-  color: rgba(148, 163, 184, 0.7);
+  color: var(--ds-on-surface-variant);
   font-size: 13px;
   margin: 12px 0 0 0;
   min-height: 20px;
@@ -656,10 +656,10 @@ function cleanup() {
 
 .skip-btn {
   background: transparent;
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  color: rgba(148, 163, 184, 0.9);
+  border: 1px solid var(--ds-outline-variant);
+  color: var(--ds-on-surface-variant);
   padding: 10px 28px;
-  border-radius: 8px;
+  border-radius: var(--ds-radius);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -667,7 +667,7 @@ function cleanup() {
 
   &:hover {
     border-color: rgba(56, 189, 248, 0.5);
-    color: #e0f2fe;
+    color: var(--ds-on-surface);
     box-shadow: 0 0 16px rgba(56, 189, 248, 0.1);
     background: rgba(56, 189, 248, 0.05);
   }

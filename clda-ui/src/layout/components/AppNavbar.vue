@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="navbar-right">
-      <button class="nav-icon-btn" @click="goAdmin" v-if="isAdmin" title="高级管理员">
+      <button class="nav-icon-btn" @click="goAdmin" v-if="hasAdminMenu" title="管理后台">
         <el-icon><Setting /></el-icon>
       </button>
       <div class="nav-divider"></div>
@@ -41,17 +41,19 @@ import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { Setting, Search, ArrowDown } from '@element-plus/icons-vue'
 import useUserStore from '@/store/modules/user'
+import usePermissionStore from '@/store/modules/permission'
 import useEquipmentStore from '@/store/modules/equipment'
 import defAva from '@/assets/images/profile.jpg'
 
 const router = useRouter()
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 const equipmentStore = useEquipmentStore()
 
 const searchKeyword = ref('')
 const nickName = computed(() => userStore.nickName || userStore.name || '用户')
 const avatar = computed(() => userStore.avatar || defAva)
-const isAdmin = computed(() => userStore.roles.includes('admin'))
+const hasAdminMenu = computed(() => permissionStore.addRoutes.length > 0)
 
 function onSearch() {
   equipmentStore.equipSearch = searchKeyword.value
@@ -75,12 +77,12 @@ function handleCommand(command) {
 <style lang="scss" scoped>
 .app-navbar {
   height: 64px;
-  background: #0D47A1;
+  background: linear-gradient(135deg, var(--ds-primary) 0%, var(--ds-primary-container) 100%);
   display: flex;
   align-items: center;
-  padding: 0 24px;
-  gap: 16px;
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
+  padding: 0 var(--ds-space-6);
+  gap: var(--ds-space-4);
+  box-shadow: var(--ds-shadow-md);
   z-index: 50;
 }
 
@@ -89,9 +91,10 @@ function handleCommand(command) {
 .navbar-title {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--ds-on-primary);
   white-space: nowrap;
   letter-spacing: 0.5px;
+  font-family: var(--ds-font-display);
 }
 
 .navbar-center {
@@ -102,14 +105,15 @@ function handleCommand(command) {
 .navbar-search-wrap {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--ds-radius);
   padding: 6px 12px;
-  gap: 8px;
+  gap: var(--ds-space-2);
   transition: background 0.2s;
+  backdrop-filter: blur(8px);
 
   &:focus-within {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.15);
   }
 }
 
@@ -183,7 +187,6 @@ function handleCommand(command) {
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .user-name {

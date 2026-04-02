@@ -5,7 +5,6 @@ import com.clda.common.utils.file.FileUploadUtils;
 import com.clda.intellect.domain.RegulationDoc;
 import com.clda.intellect.mapper.RegulationDocMapper;
 import com.clda.intellect.service.IRegulationDocService;
-import com.clda.intellect.util.DocumentParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,27 +26,14 @@ public class RegulationDocServiceImpl implements IRegulationDocService {
 
     @Override
     public RegulationDoc selectDocById(Long id) {
-        return docMapper.selectWithContent(id);
+        return docMapper.selectById(id);
     }
 
     @Override
     public RegulationDoc uploadAndParse(MultipartFile file, String title, String category,
                                          String docNo, String publishDate, String operName) throws Exception {
-        // Save file to disk
         String uploadPath = CldaConfig.getUploadPath() + "/regulations";
         String filePath = FileUploadUtils.upload(uploadPath, file);
-
-        // Parse content
-        String contentHtml;
-        String parseStatus;
-        try {
-            contentHtml = DocumentParser.parseToHtml(file);
-            parseStatus = "DONE";
-        } catch (Exception e) {
-            log.error("文档解析失败: {}", file.getOriginalFilename(), e);
-            contentHtml = "<p>文档解析失败，请手动编辑内容。</p>";
-            parseStatus = "FAILED";
-        }
 
         RegulationDoc doc = new RegulationDoc();
         doc.setTitle(title);
@@ -55,8 +41,6 @@ public class RegulationDocServiceImpl implements IRegulationDocService {
         doc.setDocNo(docNo);
         doc.setFileName(file.getOriginalFilename());
         doc.setFilePath(filePath);
-        doc.setContentHtml(contentHtml);
-        doc.setParseStatus(parseStatus);
         doc.setCreateBy(operName);
         if (publishDate != null && !publishDate.isEmpty()) {
             try {

@@ -126,6 +126,8 @@ import { useVoiceChat } from '@/composables/useVoiceChat'
 const props = defineProps({
   username: { type: String, default: '' },
   autoConnect: { type: Boolean, default: true },
+  autoListen: { type: Boolean, default: true },
+  defaultMode: { type: String, default: 'auto' },
 })
 
 const router = useRouter()
@@ -149,6 +151,7 @@ const {
   toggleAutoListen,
   setListenMode,
   setNavigateCallback,
+  setAutoListenOnConnect,
 } = useVoiceChat()
 
 function onMouseLeave() {
@@ -198,6 +201,8 @@ onMounted(() => {
       router.replace({ path: '/robot/app', query: { service } })
     }
   })
+  setAutoListenOnConnect(props.autoListen)
+  setListenMode(props.defaultMode)
   if (props.autoConnect) {
     connect(props.username)
   }

@@ -36,6 +36,12 @@ public class KnowledgeChapter extends BaseEntity {
     @TableField(select = false)
     private String contentHtml;
 
+    /** 原始文件名 */
+    private String fileName;
+
+    /** 文件存储路径 */
+    private String filePath;
+
     /** 子章节列表（非数据库字段，树形结构用） */
     @TableField(exist = false)
     private List<KnowledgeChapter> children;

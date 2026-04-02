@@ -32,4 +32,7 @@ public interface IEquipmentDataService {
 
     /** 查询指定设备+分类有数据的日期列表(用于日历标记) */
     List<String> selectDataDates(Long equipmentId, Long categoryId, String yearMonth);
+
+    /** 查询单个文件 */
+    DataFile selectFileById(Long fileId);
 }

@@ -5,16 +5,12 @@
 
     <!-- Body: sidebar + content -->
     <div class="app-body">
-      <EquipmentSidebar
-        @add-equipment="showAddEquipment = true"
-        @manage-partition="showPartitionMgr = true"
-        @batch-import="showBatchImport = true"
-      />
+      <EquipmentSidebar />
 
       <div class="app-main">
         <!-- Main content area (always data upload) -->
         <div class="app-main-content">
-          <AppContent :current-service="currentService" />
+          <AppContent :current-service="currentService" @open-structured-view="handleOpenStructuredView" />
         </div>
 
         <!-- AI assistant slide-up panel overlay -->
@@ -33,7 +29,18 @@
                 </button>
               </div>
               <div class="ai-panel-body">
+                <DataServicePanel
+                  v-if="activeServiceId === 'data_service_ai'"
+                  :equipment-id="equipmentStore.selectedEquipment?.id"
+                  :initial-file="pendingStructuredFile"
+                  @close="closeAssistant"
+                />
+                <KnowledgeView v-else-if="activeServiceId === 'safety_maintenance_ai'" />
+                <RegulationsView v-else-if="activeServiceId === 'regulations_ai'" />
+                <HazardSourceView v-else-if="activeServiceId === 'typical_issue_ai'" />
+                <InspectionView v-else-if="activeServiceId === 'hazard_check'" />
                 <PlaceholderView
+                  v-else
                   :title="activeAssistant.name"
                   :desc="activeAssistant.description"
                   :color="activeAssistant.color"
@@ -51,13 +58,11 @@
             :key="item.service"
             class="ai-btn"
             :class="{ active: activeServiceId === item.service }"
-            :style="{ '--btn-color': item.color, '--btn-bg': item.colorLight }"
+            :style="{ '--btn-color': item.color, '--btn-bg': item.colorSurface, '--btn-active': item.colorActive }"
             @click="toggleAssistant(item.service)"
           >
-            <div class="ai-btn-icon">
-              <el-icon :size="20"><component :is="item.icon" /></el-icon>
-            </div>
-            <span class="ai-btn-label">{{ item.shortName }}</span>
+            <el-icon class="ai-btn-icon" :size="22"><component :is="item.icon" /></el-icon>
+            <span class="ai-btn-label">{{ item.name }}</span>
           </button>
         </div>
       </div>
@@ -66,48 +71,24 @@
     <!-- Voice chat panel (floating) -->
     <VoiceChatPanel :username="userStore.name" :auto-connect="true" :auto-listen="false" default-mode="manual" />
 
-    <!-- Add equipment dialog -->
-    <el-dialog v-model="showAddEquipment" title="添加设备" width="500px" append-to-body>
-      <el-form :model="newEquipForm" label-width="80px">
-        <el-form-item label="设备名称"><el-input v-model="newEquipForm.equipmentName" /></el-form-item>
-        <el-form-item label="设备编号"><el-input v-model="newEquipForm.equipmentCode" /></el-form-item>
-        <el-form-item label="所属分区">
-          <el-select v-model="newEquipForm.partitionId" placeholder="选择分区">
-            <el-option v-for="p in equipmentStore.partitionsWithEquip" :key="p.id" :label="p.partitionName" :value="p.id" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showAddEquipment = false">取消</el-button>
-        <el-button type="primary" @click="doAddEquipment">确定</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- Partition management dialog -->
-    <el-dialog v-model="showPartitionMgr" title="分区管理" width="600px" append-to-body>
-      <PartitionView />
-    </el-dialog>
-
-    <!-- Batch import dialog (placeholder) -->
-    <el-dialog v-model="showBatchImport" title="批量导入" width="600px" append-to-body>
-      <el-empty description="批量导入功能开发中" />
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import { Close } from '@element-plus/icons-vue'
 import AppNavbar from './components/AppNavbar.vue'
 import EquipmentSidebar from './components/EquipmentSidebar.vue'
 import AppContent from './components/AppContent.vue'
 import VoiceChatPanel from '@/components/VoiceChatPanel/index.vue'
-import PartitionView from '@/views/intellect/partition/index.vue'
 import PlaceholderView from '@/views/robot/components/PlaceholderView.vue'
+import KnowledgeView from '@/views/intellect/knowledge/index.vue'
+import RegulationsView from '@/views/intellect/regulations/index.vue'
+import HazardSourceView from '@/views/intellect/hazard-source/index.vue'
+import InspectionView from '@/views/intellect/inspection/index.vue'
+import DataServicePanel from '@/views/intellect/components/DataServicePanel.vue'
 import { aiAssistants } from '@/config/aiAssistants'
-import { addEquipment } from '@/api/intellect/equipment'
 import useUserStore from '@/store/modules/user'
 import useEquipmentStore from '@/store/modules/equipment'
 import { useVoiceChat } from '@/composables/useVoiceChat'
@@ -120,46 +101,25 @@ const { setNavigateCallback } = useVoiceChat()
 
 const currentService = computed(() => route.query.service || '')
 const activeServiceId = ref(null)
-const showAddEquipment = ref(false)
-const showPartitionMgr = ref(false)
-const showBatchImport = ref(false)
-const newEquipForm = ref({ equipmentName: '', equipmentCode: '', partitionId: null })
+const pendingStructuredFile = ref(null)
+
+// Handle "view structured data" from equipdata page
+function handleOpenStructuredView(file) {
+  pendingStructuredFile.value = file
+  activeServiceId.value = 'data_service_ai'
+}
 
 const activeAssistant = computed(() => {
   if (!activeServiceId.value) return null
   return aiAssistants.find(a => a.service === activeServiceId.value) || null
 })
 
-// These services render as full-page views in AppContent, not slide-up overlays
-const fullPageServices = ['safety_maintenance_ai', 'regulations_ai']
-
 function toggleAssistant(service) {
-  if (fullPageServices.includes(service)) {
-    activeServiceId.value = null
-    switchService(service)
-    return
-  }
   activeServiceId.value = activeServiceId.value === service ? null : service
 }
 
 function closeAssistant() {
   activeServiceId.value = null
-}
-
-function switchService(service) {
-  router.replace({ path: '/app', query: { service } })
-}
-
-async function doAddEquipment() {
-  if (!newEquipForm.value.equipmentName) {
-    ElMessage.warning('请输入设备名称')
-    return
-  }
-  await addEquipment(newEquipForm.value)
-  ElMessage.success('添加成功')
-  showAddEquipment.value = false
-  newEquipForm.value = { equipmentName: '', equipmentCode: '', partitionId: null }
-  equipmentStore.loadEquipments()
 }
 
 // Watch for assistant query param to auto-open panel
@@ -193,7 +153,8 @@ onMounted(() => {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background: #fff;
+  background: var(--ds-surface);
+  font-family: var(--ds-font-body);
 }
 
 .app-body {
@@ -219,8 +180,8 @@ onMounted(() => {
 .ai-panel-overlay {
   position: absolute;
   inset: 0;
-  bottom: 76px; // above the AI bar
-  background: rgba(0, 0, 0, 0.3);
+  bottom: 82px;
+  background: rgba(13, 28, 46, 0.25);
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -228,10 +189,10 @@ onMounted(() => {
 }
 
 .ai-panel {
-  background: #fff;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
-  max-height: 75%;
+  background: var(--ds-surface-container-lowest);
+  border-radius: var(--ds-radius-lg) var(--ds-radius-lg) 0 0;
+  box-shadow: var(--ds-shadow-xl);
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -240,39 +201,44 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: var(--ds-space-3) var(--ds-space-5);
+  background: var(--ds-surface-container-low);
   flex-shrink: 0;
 }
 
 .ai-panel-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--ds-space-2);
   font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--ds-on-surface);
+  font-family: var(--ds-font-display);
 }
 
 .ai-panel-close {
   background: none;
   border: none;
   cursor: pointer;
-  color: #94a3b8;
-  padding: 4px;
-  border-radius: 6px;
+  color: var(--ds-outline);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ds-radius);
   transition: all 0.2s;
 
   &:hover {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--ds-surface-container);
+    color: var(--ds-on-surface);
   }
 }
 
 .ai-panel-body {
   flex: 1;
   overflow-y: auto;
-  padding: 0;
+  overflow-x: hidden;
 }
 
 // Slide-up transition
@@ -296,62 +262,61 @@ onMounted(() => {
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  height: 76px;
-  background: #fff;
-  border-top: 1px solid #e2e8f0;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-3) var(--ds-space-4);
+  background: var(--ds-surface-container-lowest);
   z-index: 11;
   position: relative;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .ai-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 10px;
+  height: var(--ds-space-12);
   border: none;
-  border-right: 1px solid #f1f5f9;
-  background: transparent;
+  border-radius: var(--ds-radius);
+  background: var(--btn-bg, var(--ds-surface-container-low));
+  color: var(--btn-color, var(--ds-on-surface-variant));
   cursor: pointer;
   transition: all 0.2s;
-  padding: 8px 4px;
-
-  &:last-child { border-right: none; }
+  padding: 0 var(--ds-space-3);
+  box-shadow: var(--ds-shadow-sm);
 
   &:hover {
-    background: var(--btn-bg, #f5f5f5);
-
-    .ai-btn-icon { transform: scale(1.1); }
-    .ai-btn-label { color: var(--btn-color); }
+    box-shadow: var(--ds-shadow-md);
+    transform: translateY(-1px);
   }
 
   &.active {
-    background: var(--btn-bg, #f5f5f5);
-    .ai-btn-icon {
-      box-shadow: 0 0 0 2px var(--btn-color);
-    }
-    .ai-btn-label { color: var(--btn-color); font-weight: 700; }
+    background: var(--btn-active, var(--btn-color));
+    color: #fff;
+    box-shadow: var(--ds-shadow-md);
+    transform: scale(1.02);
+
+    .ai-btn-icon { color: #fff; }
+    .ai-btn-label { color: #fff; }
   }
 }
 
 .ai-btn-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: var(--btn-bg, rgba(100, 100, 100, 0.1));
+  flex-shrink: 0;
   color: var(--btn-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+  transition: color 0.2s;
 }
 
 .ai-btn-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: #475569;
+  font-size: 15px;
+  font-weight: 700;
+  color: inherit;
   line-height: 1.2;
   text-align: center;
+  white-space: nowrap;
   transition: color 0.2s;
+  font-family: var(--ds-font-display);
 }
 </style>

@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
-/** 查询法规列表（支持 category / title 过滤，分页） */
+/** 查询法规列表 */
 export function listRegulations(query) {
   return request({ url: '/intellect/regulation/list', method: 'get', params: query })
 }
 
-/** 查询法规详情（含 content_html） */
+/** 查询法规详情 */
 export function getRegulation(id) {
   return request({ url: '/intellect/regulation/' + id, method: 'get' })
 }

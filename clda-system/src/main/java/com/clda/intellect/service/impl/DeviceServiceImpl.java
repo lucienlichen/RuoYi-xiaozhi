@@ -129,7 +129,7 @@ public class DeviceServiceImpl implements IDeviceService {
             response.setActivation(activation);
         }else {
             DeviceReportVO.Websocket websocket = new DeviceReportVO.Websocket();
-            websocket.setUrl("ws://" + NetUtil.getLocalhost().getHostAddress() +":8082/xiaozhi/v1");
+            websocket.setUrl("ws://" + NetUtil.getLocalhost().getHostAddress() +":8082/clda/v1");
             response.setWebsocket(websocket);
         }
         return response;

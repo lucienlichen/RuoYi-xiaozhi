@@ -1,5 +1,5 @@
 <template>
-  <div class="robot-layout">
+  <div class="robot-layout ds-dark">
     <!-- Top bar -->
     <header class="robot-header">
       <div class="robot-header__left">
@@ -84,14 +84,14 @@ function switchService(service) {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f5f7fa;
+  background: var(--ds-surface);
   overflow: hidden;
 }
 
 .robot-header {
   height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--ds-surface-container-low);
+  box-shadow: var(--ds-shadow-sm);
   display: flex;
   align-items: center;
   padding: 0 16px;
@@ -103,14 +103,14 @@ function switchService(service) {
 
 .back-btn {
   font-size: 14px;
-  color: #606266;
+  color: var(--ds-on-surface-variant);
   .el-icon { margin-right: 4px; }
 }
 
 .robot-header__title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ds-on-surface);
   text-align: center;
 }
 
@@ -121,19 +121,19 @@ function switchService(service) {
 
 .user-name {
   font-size: 14px;
-  color: #909399;
+  color: var(--ds-on-surface-variant);
 }
 
 .robot-main {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--ds-space-4);
 }
 
 .robot-footer {
   flex-shrink: 0;
-  background: #fff;
-  border-top: 1px solid #e4e7ed;
+  background: var(--ds-surface-container-low);
+  box-shadow: var(--ds-shadow-sm);
   padding: 8px 16px;
   display: flex;
   align-items: center;
@@ -156,16 +156,16 @@ function switchService(service) {
   gap: 2px;
   padding: 6px 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--ds-radius);
   background: transparent;
-  color: #909399;
+  color: var(--ds-on-surface-variant);
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
   flex-shrink: 0;
 
   &:hover {
-    background: #f2f3f5;
+    background: var(--ds-surface-container);
     color: var(--btn-color);
   }
 
