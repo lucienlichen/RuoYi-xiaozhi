@@ -1,0 +1,181 @@
+/**
+ * EMDS-V2 Design System: "The Digital Superintendent"
+ * Based on DESIGN.md specification
+ */
+
+:root {
+  /* ===== Core Palette ===== */
+  --ds-primary: #003178;
+  --ds-primary-container: #1a4a8f;
+  --ds-on-primary: #ffffff;
+  --ds-secondary: #006c49;        /* Emerald - Data Services */
+  --ds-tertiary: #170dae;         /* Indigo - Issue Processing */
+
+  /* ===== Surface Architecture (Tonal Layering) ===== */
+  --ds-surface: #f7f8fa;                    /* Level 0: Canvas */
+  --ds-surface-container-low: #f0f2f5;       /* Level 1: Major blocks */
+  --ds-surface-container: #e8eaef;           /* Borders & dividers alternative */
+  --ds-surface-container-high: #dfe2e8;      /* Higher emphasis */
+  --ds-surface-container-highest: #d3d7df;
+  --ds-surface-container-lowest: #ffffff;    /* Level 2: Cards on L1 */
+  --ds-surface-dim: #e0e3e8;                /* Disabled/background */
+  --ds-surface-tint: #003178;               /* Focus highlight color */
+
+  /* ===== Text Colors ===== */
+  --ds-on-surface: #0d1c2e;               /* Primary text (never #000) */
+  --ds-on-surface-variant: #434652;        /* Labels, secondary text */
+  --ds-outline: #74777f;                   /* Mid emphasis */
+  --ds-outline-variant: #c3c6d4;           /* Ghost borders */
+
+  /* ===== AI Assistant Color Coding ===== */
+  --ds-emerald: #006c49;          /* Data Service */
+  --ds-emerald-surface: rgba(0, 108, 73, 0.06);
+  --ds-indigo: #170dae;           /* Issue Processing */
+  --ds-indigo-surface: rgba(23, 13, 174, 0.06);
+  --ds-amber: #b45309;            /* Hazard Check */
+  --ds-amber-surface: rgba(180, 83, 9, 0.06);
+  --ds-orange: #c2410c;           /* Risk Service */
+  --ds-orange-surface: rgba(194, 65, 12, 0.06);
+  --ds-rose: #be185d;             /* Knowledge */
+  --ds-rose-surface: rgba(190, 24, 93, 0.06);
+  --ds-slate: #475569;            /* Regulations */
+  --ds-slate-surface: rgba(71, 85, 105, 0.06);
+
+  /* ===== Status ===== */
+  --ds-success: #006c49;
+  --ds-warning: #b45309;
+  --ds-error: #b3261e;
+
+  /* ===== Shadows (Ambient, never pure black) ===== */
+  --ds-shadow-sm: 0px 2px 8px rgba(13, 28, 46, 0.04);
+  --ds-shadow-md: 0px 4px 16px rgba(13, 28, 46, 0.06);
+  --ds-shadow-lg: 0px 12px 32px rgba(13, 28, 46, 0.06);
+  --ds-shadow-xl: 0px 16px 48px rgba(13, 28, 46, 0.08);
+
+  /* ===== Glassmorphism ===== */
+  --ds-glass-bg: rgba(255, 255, 255, 0.7);
+  --ds-glass-blur: 20px;
+  --ds-glass-border: rgba(195, 198, 212, 0.15);
+
+  /* ===== Spacing (8px base) ===== */
+  --ds-space-1: 0.25rem;   /* 4px */
+  --ds-space-2: 0.5rem;    /* 8px */
+  --ds-space-3: 0.75rem;   /* 12px */
+  --ds-space-4: 1rem;       /* 16px */
+  --ds-space-5: 1.25rem;   /* 20px - Card padding standard */
+  --ds-space-6: 1.5rem;    /* 24px */
+  --ds-space-8: 2rem;      /* 32px */
+  --ds-space-10: 2.5rem;   /* 40px - Button height */
+  --ds-space-12: 3rem;     /* 48px */
+
+  /* ===== Radii ===== */
+  --ds-radius: 0.5rem;     /* 8px - Default for containers & buttons */
+  --ds-radius-sm: 0.375rem; /* 6px */
+  --ds-radius-lg: 0.75rem; /* 12px - Panels */
+  --ds-radius-full: 9999px; /* Tags, status indicators */
+
+  /* ===== Typography ===== */
+  --ds-font-display: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ds-font-body: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  /* ===== Element Plus Bridge Tokens (Light) ===== */
+  --el-color-primary: var(--ds-primary);
+  --el-color-primary-light-3: #3a6199;
+  --el-color-primary-light-5: #7f98bb;
+  --el-color-primary-light-7: #b3c2d7;
+  --el-color-primary-light-8: #ccd5e4;
+  --el-color-primary-light-9: #e5eaf1;
+  --el-color-primary-dark-2: #002760;
+  --el-bg-color: var(--ds-surface-container-lowest);
+  --el-bg-color-overlay: var(--ds-surface-container-lowest);
+  --el-bg-color-page: var(--ds-surface);
+  --el-text-color-primary: var(--ds-on-surface);
+  --el-text-color-regular: var(--ds-on-surface-variant);
+  --el-text-color-secondary: var(--ds-outline);
+  --el-text-color-placeholder: var(--ds-outline-variant);
+  --el-border-color: var(--ds-surface-container-high);
+  --el-border-color-light: var(--ds-surface-container);
+  --el-border-color-lighter: var(--ds-surface-container-low);
+  --el-border-color-extra-light: var(--ds-surface-container-low);
+  --el-fill-color: var(--ds-surface-container-low);
+  --el-fill-color-light: var(--ds-surface-container-low);
+  --el-fill-color-lighter: var(--ds-surface);
+  --el-fill-color-blank: var(--ds-surface-container-lowest);
+  --el-mask-color: rgba(13, 28, 46, 0.25);
+}
+
+/* ===== Dark Mode (unified: html.dark for toggle, .ds-dark for static Robot端) ===== */
+html.dark, .ds-dark {
+  --ds-surface: #0c1222;
+  --ds-surface-container-low: #111827;
+  --ds-surface-container: #1a2236;
+  --ds-surface-container-high: #243044;
+  --ds-surface-container-highest: #2e3a50;
+  --ds-surface-container-lowest: #0a0e1a;
+  --ds-surface-dim: #192133;
+  --ds-on-surface: #e0e4ec;
+  --ds-on-surface-variant: #8b90a0;
+  --ds-outline: #5a5e6e;
+  --ds-outline-variant: rgba(195, 198, 212, 0.12);
+
+  --ds-shadow-sm: 0px 2px 8px rgba(0, 0, 0, 0.2);
+  --ds-shadow-md: 0px 4px 16px rgba(0, 0, 0, 0.25);
+  --ds-shadow-lg: 0px 12px 32px rgba(0, 0, 0, 0.3);
+  --ds-shadow-xl: 0px 16px 48px rgba(0, 0, 0, 0.35);
+
+  --ds-glass-bg: rgba(12, 18, 34, 0.7);
+  --ds-glass-border: rgba(195, 198, 212, 0.08);
+
+  /* Element Plus Bridge Tokens (Dark) */
+  --el-color-primary: var(--ds-primary);
+  --el-color-primary-light-3: #1a4a8f;
+  --el-color-primary-light-5: #19305e;
+  --el-color-primary-light-7: #142440;
+  --el-color-primary-light-8: #111d33;
+  --el-color-primary-light-9: #0e1726;
+  --el-color-primary-dark-2: #3a6199;
+  --el-bg-color: var(--ds-surface-container-lowest);
+  --el-bg-color-overlay: var(--ds-surface-container-low);
+  --el-bg-color-page: var(--ds-surface);
+  --el-text-color-primary: var(--ds-on-surface);
+  --el-text-color-regular: var(--ds-on-surface-variant);
+  --el-text-color-secondary: var(--ds-outline);
+  --el-text-color-placeholder: #5a5e6e;
+  --el-border-color: var(--ds-surface-container-high);
+  --el-border-color-light: var(--ds-surface-container);
+  --el-border-color-lighter: var(--ds-surface-container-low);
+  --el-border-color-extra-light: var(--ds-surface-container-low);
+  --el-fill-color: var(--ds-surface-container);
+  --el-fill-color-light: var(--ds-surface-container-low);
+  --el-fill-color-lighter: var(--ds-surface);
+  --el-fill-color-blank: var(--ds-surface-container-lowest);
+  --el-mask-color: rgba(0, 0, 0, 0.5);
+
+  /* Sidebar/Navbar dark overrides */
+  --sidebar-bg: var(--ds-surface-container-lowest);
+  --sidebar-text: var(--ds-on-surface);
+  --menu-hover: var(--ds-surface-container);
+  --navbar-bg: var(--ds-surface-container-lowest);
+  --navbar-text: var(--ds-on-surface);
+  --navbar-hover: var(--ds-surface-container);
+
+  /* Tags */
+  --tags-bg: var(--ds-surface-container-lowest);
+  --tags-item-bg: var(--ds-surface-container-low);
+  --tags-item-border: var(--ds-surface-container);
+  --tags-item-text: var(--ds-on-surface-variant);
+  --tags-item-hover: var(--ds-surface-container);
+  --tags-close-hover: var(--ds-outline);
+
+  /* Misc */
+  --splitpanes-default-bg: var(--ds-surface-container-lowest);
+  --blockquote-bg: var(--ds-surface-container-low);
+  --blockquote-border: var(--ds-surface-container);
+  --blockquote-text: var(--ds-on-surface-variant);
+  --cron-border: var(--ds-surface-container);
+}
+
+/* ===== Ghost Border Utility ===== */
+.ghost-border {
+  border: 1px solid rgba(195, 198, 212, 0.15) !important;
+}

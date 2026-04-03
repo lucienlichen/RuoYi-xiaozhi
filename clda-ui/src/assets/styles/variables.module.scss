@@ -1,0 +1,145 @@
+// base color
+$blue: #324157;
+$light-blue: #333c46;
+$red: #C03639;
+$pink: #E65D6E;
+$green: #30B08F;
+$tiffany: #4AB7BD;
+$yellow: #FEC171;
+$panGreen: #30B08F;
+
+// 默认主题变量
+$menuText: #bfcbd9;
+$menuActiveText: #409eff;
+$menuBg: #304156;
+$menuHover: #263445;
+
+// 浅色主题theme-light
+$menuLightBg: #ffffff;
+$menuLightHover: #f0f1f5;
+$menuLightText: #303133;
+$menuLightActiveText: #409EFF;
+
+// 基础变量
+$base-sidebar-width: 200px;
+$sideBarWidth: 200px;
+
+// 菜单暗色变量
+$base-menu-color: #bfcbd9;
+$base-menu-color-active: #f4f4f5;
+$base-menu-background: #304156;
+$base-sub-menu-background: #1f2d3d;
+$base-sub-menu-hover: #001528;
+
+// 组件变量
+$--color-primary: #409EFF;
+$--color-success: #67C23A;
+$--color-warning: #E6A23C;
+$--color-danger: #F56C6C;
+$--color-info: #909399;
+
+:export {
+  menuText: $menuText;
+  menuActiveText: $menuActiveText;
+  menuBg: $menuBg;
+  menuHover: $menuHover;
+  menuLightBg: $menuLightBg;
+  menuLightHover: $menuLightHover;
+  menuLightText: $menuLightText;
+  menuLightActiveText: $menuLightActiveText;
+  sideBarWidth: $sideBarWidth;
+  // 导出基础颜色
+  blue: $blue;
+  lightBlue: $light-blue;
+  red: $red;
+  pink: $pink;
+  green: $green;
+  tiffany: $tiffany;
+  yellow: $yellow;
+  panGreen: $panGreen;
+  // 导出组件颜色
+  colorPrimary: $--color-primary;
+  colorSuccess: $--color-success;
+  colorWarning: $--color-warning;
+  colorDanger: $--color-danger;
+  colorInfo: $--color-info;
+}
+
+// CSS变量定义 (light mode defaults — dark overrides in design-system.scss)
+:root {
+  --sidebar-bg: #{$menuBg};
+  --sidebar-text: #{$menuText};
+  --menu-hover: #{$menuHover};
+  --navbar-bg: var(--ds-surface-container-lowest);
+  --navbar-text: var(--ds-on-surface);
+  --navbar-hover: var(--ds-surface-container-low);
+  --tags-bg: var(--ds-surface-container-lowest);
+  --tags-item-bg: var(--ds-surface-container-low);
+  --tags-item-border: var(--ds-surface-container);
+  --tags-item-text: var(--ds-on-surface-variant);
+  --tags-item-hover: var(--ds-surface-container);
+  --tags-close-hover: var(--ds-outline);
+  --splitpanes-default-bg: var(--ds-surface-container-lowest);
+  --blockquote-bg: var(--ds-surface-container-low);
+  --blockquote-border: var(--ds-surface-container);
+  --blockquote-text: var(--ds-on-surface-variant);
+  --cron-border: var(--ds-surface-container);
+}
+
+// Dark mode component overrides (variables handled by design-system.scss)
+html.dark {
+  .sidebar-container {
+    .el-menu-item, .menu-title {
+      color: var(--el-text-color-regular);
+    }
+    & .theme-dark .nest-menu .el-sub-menu>.el-sub-menu__title,
+    & .theme-dark .el-sub-menu .el-menu-item {
+      background-color: var(--el-bg-color) !important;
+    }
+  }
+
+  .el-menu--horizontal .el-menu-item:not(.is-disabled) {
+    &:hover, &:focus {
+      background-color: var(--navbar-hover) !important;
+    }
+  }
+
+  .splitpanes {
+    background-color: var(--ds-surface-container-lowest);
+    .splitpanes__pane { background-color: var(--ds-surface-container-lowest); }
+    .splitpanes__splitter {
+      background-color: var(--ds-surface-container-low);
+      &:hover { background-color: var(--ds-surface-container); }
+      &:before, &:after { background-color: var(--ds-surface-container); }
+    }
+  }
+
+  .el-table {
+    --el-table-header-bg-color: var(--el-bg-color-overlay) !important;
+    --el-table-header-text-color: var(--el-text-color-regular) !important;
+    --el-table-border-color: var(--el-border-color-light) !important;
+    --el-table-row-hover-bg-color: var(--el-bg-color-overlay) !important;
+  }
+
+  .el-tree {
+    .el-tree-node.is-current > .el-tree-node__content {
+      background-color: var(--el-bg-color-overlay) !important;
+      color: var(--el-color-primary);
+    }
+    .el-tree-node__content:hover { background-color: var(--el-bg-color-overlay); }
+  }
+
+  .el-dropdown-menu__item:not(.is-disabled):focus,
+  .el-dropdown-menu__item:not(.is-disabled):hover {
+    background-color: var(--navbar-hover) !important;
+  }
+
+  blockquote {
+    background-color: var(--blockquote-bg) !important;
+    border-left-color: var(--blockquote-border) !important;
+    color: var(--blockquote-text) !important;
+  }
+
+  .popup-result .title { background: var(--cron-border); }
+}
+

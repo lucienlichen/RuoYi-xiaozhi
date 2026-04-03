@@ -1,0 +1,106 @@
+/**
+ * Robot terminal portrait screen adaptation
+ * Target: 8-inch vertical screen (~800x1280)
+ */
+
+// Portrait mode - vertical screen on humanoid robot
+@media (max-width: 820px) and (orientation: portrait) {
+  // Larger base font for 8-inch readability
+  body {
+    font-size: 16px;
+  }
+
+  // Touch target minimums (44px per Apple HIG / Material guidelines)
+  button, .el-button, a[role="button"], [role="button"] {
+    min-height: 44px;
+  }
+
+  // Element Plus dialog - near full screen on portrait
+  .el-dialog {
+    width: 95% !important;
+    margin-top: 5vh !important;
+    border-radius: var(--ds-radius-lg);
+  }
+
+  // Element Plus drawer - full width on portrait
+  .el-drawer {
+    width: 100% !important;
+    border-radius: var(--ds-radius-lg) var(--ds-radius-lg) 0 0;
+  }
+
+  // Tables - larger text and padding for touch
+  .el-table {
+    font-size: 15px;
+
+    th, td {
+      padding: 10px 8px;
+    }
+
+    .el-table__body-wrapper {
+      overflow-x: auto;
+    }
+  }
+
+  // Tags - larger for readability
+  .el-tag {
+    font-size: 13px;
+    padding: 4px 12px;
+    min-height: 28px;
+  }
+
+  // Buttons - larger touch targets
+  .el-button {
+    font-size: 15px;
+    padding: 10px 20px;
+  }
+
+  // Inputs - taller for touch
+  .el-input__wrapper {
+    min-height: 44px;
+  }
+
+  // Form labels - stack above inputs
+  .el-form-item__label {
+    display: block;
+    width: 100% !important;
+    text-align: left;
+  }
+
+  // Calendar - compact mode
+  .el-calendar {
+    .el-calendar__body {
+      padding: 8px;
+    }
+
+    .el-calendar-day {
+      height: 40px;
+    }
+  }
+
+  // Forms - stack label and input
+  .el-form--inline {
+    .el-form-item {
+      display: block;
+      margin-right: 0;
+      width: 100%;
+    }
+  }
+
+  // Content grid stacking (used by equipdata and other views)
+  .content-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  // Pagination - simplified for small screens
+  .el-pagination {
+    > .el-pagination__jump,
+    > .el-pagination__sizes {
+      display: none !important;
+    }
+  }
+}
+
+// Landscape mode - standard desktop/laptop
+@media (min-width: 1024px) {
+  // No special overrides needed for desktop
+}

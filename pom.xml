@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rouyi.xiaozhi</groupId>
-    <artifactId>xiaozhi</artifactId>
+    <groupId>com.clda</groupId>
+    <artifactId>clda</artifactId>
     <version>3.8.9</version>
 
-    <name>xiaozhi</name>
+    <name>clda</name>
     <url>http://www.ruoyi.vip</url>
-    <description>若依小智服务管理系统</description>
+    <description>起重装备全生命周期数据AI智能体平台</description>
 
     <properties>
-        <xiaozhi.version>3.8.9</xiaozhi.version>
+        <clda.version>3.8.9</clda.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>21</java.version>
@@ -29,6 +29,7 @@
         <oshi.version>6.8.1</oshi.version>
         <commons.io.version>2.19.0</commons.io.version>
         <poi.version>4.1.2</poi.version>
+        <pdfbox.version>2.0.31</pdfbox.version>
         <velocity.version>2.3</velocity.version>
         <jwt.version>0.9.1</jwt.version>
         <mysql.version>8.2.0</mysql.version>
@@ -61,6 +62,27 @@
                 <version>3.3.11</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- Spring AI BOM -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>1.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-openai</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-client-chat</artifactId>
+                <version>1.0.0</version>
             </dependency>
 
             <!-- 阿里数据库连接池 -->
@@ -142,6 +164,13 @@
                 <version>${poi.version}</version>
             </dependency>
 
+            <!-- PDF解析 -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${pdfbox.version}</version>
+            </dependency>
+
             <!-- velocity代码生成使用模板 -->
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -186,59 +215,59 @@
 
             <!-- 定时任务-->
             <dependency>
-                <groupId>com.rouyi.xiaozhi</groupId>
-                <artifactId>xiaozhi-quartz</artifactId>
-                <version>${xiaozhi.version}</version>
+                <groupId>com.clda</groupId>
+                <artifactId>clda-quartz</artifactId>
+                <version>${clda.version}</version>
             </dependency>
 
             <!-- 代码生成-->
             <dependency>
-                <groupId>com.rouyi.xiaozhi</groupId>
-                <artifactId>xiaozhi-generator</artifactId>
-                <version>${xiaozhi.version}</version>
+                <groupId>com.clda</groupId>
+                <artifactId>clda-generator</artifactId>
+                <version>${clda.version}</version>
             </dependency>
 
             <!-- 远程调用-->
             <dependency>
-                <groupId>com.rouyi.xiaozhi</groupId>
-                <artifactId>xiaozhi-feign</artifactId>
-                <version>${xiaozhi.version}</version>
+                <groupId>com.clda</groupId>
+                <artifactId>clda-feign</artifactId>
+                <version>${clda.version}</version>
             </dependency>
 
             <!-- 核心模块-->
             <dependency>
-                <groupId>com.rouyi.xiaozhi</groupId>
-                <artifactId>xiaozhi-framework</artifactId>
-                <version>${xiaozhi.version}</version>
+                <groupId>com.clda</groupId>
+                <artifactId>clda-framework</artifactId>
+                <version>${clda.version}</version>
             </dependency>
 
             <!-- 系统模块-->
             <dependency>
-                <groupId>com.rouyi.xiaozhi</groupId>
-                <artifactId>xiaozhi-system</artifactId>
-                <version>${xiaozhi.version}</version>
+                <groupId>com.clda</groupId>
+                <artifactId>clda-system</artifactId>
+                <version>${clda.version}</version>
             </dependency>
 
             <!-- 通用工具-->
             <dependency>
-                <groupId>com.rouyi.xiaozhi</groupId>
-                <artifactId>xiaozhi-common</artifactId>
-                <version>${xiaozhi.version}</version>
+                <groupId>com.clda</groupId>
+                <artifactId>clda-common</artifactId>
+                <version>${clda.version}</version>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <modules>
-        <module>xiaozhi-admin</module>
-        <module>xiaozhi-framework</module>
-        <module>xiaozhi-system</module>
-        <module>xiaozhi-quartz</module>
-        <module>xiaozhi-generator</module>
-        <module>xiaozhi-common</module>
-        <module>xiaozhi-chat</module>
+        <module>clda-admin</module>
+        <module>clda-framework</module>
+        <module>clda-system</module>
+        <module>clda-quartz</module>
+        <module>clda-generator</module>
+        <module>clda-common</module>
+        <module>clda-chat</module>
         <module>sherpa-onnx</module>
-        <module>xiaozhi-feign</module>
+        <module>clda-feign</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -271,6 +300,14 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

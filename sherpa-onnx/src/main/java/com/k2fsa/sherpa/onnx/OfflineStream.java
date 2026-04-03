@@ -2,7 +2,7 @@
 
 package com.k2fsa.sherpa.onnx;
 
-import com.ruoyi.xiaozhi.onnx.SherpaOnnxLoader;
+import com.clda.onnx.SherpaOnnxLoader;
 
 public class OfflineStream {
     static {

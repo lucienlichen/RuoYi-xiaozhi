@@ -1,0 +1,42 @@
+# ========================================
+# CLDA Admin - Development Profile
+# ========================================
+# 本地开发专用配置，包含调试工具和宽松安全设置
+# 激活方式: SPRING_PROFILES_ACTIVE=dev (默认)
+
+spring:
+  # 热部署
+  devtools:
+    restart:
+      enabled: true
+
+# 开发环境日志（详细）
+logging:
+  level:
+    com.clda: debug
+    org.springframework: warn
+
+# 开发环境覆盖
+clda:
+  profile: ./uploadPath
+  minio:
+    access-key: minioadmin
+    secret-key: minioadmin
+
+# 开发环境 JWT（弱密钥，仅用于本地开发）
+token:
+  secret: abcdefghijklmnopqrstuvwxyz
+
+# Springdoc/Swagger - 开发环境启用
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha
+  group-configs:
+    - group: 'default'
+      display-name: '测试模块'
+      paths-to-match: '/**'
+      packages-to-scan: com.clda.web.controller.tool

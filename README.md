@@ -1,6 +1,6 @@
 [![Banners](docs/images/index.png)](https://github.com/dbcjl/RuoYi-xiaozhi)
 
-<h1 align="center">基于若依管理系统的xiaozhi-esp32服务端</h1>
+<h1 align="center">基于CLDA管理平台的xiaozhi-esp32服务端</h1>
 
 <p align="center">
 本项目为开源智能硬件项目
@@ -117,12 +117,12 @@ git clone https://github.com/78/xiaozhi-server.git
 
 ### 3、创建数据库
 
-- 创建名为 ry-xiaozhi 的 MySQL 数据库；
-- 执行初始化 SQL 脚本：sql/ry-xiaozhi-20250615.sql
+- 创建名为 clda 的 MySQL 数据库；
+- 执行初始化 SQL 脚本：sql/clda-20250615.sql
 
 ### 4、配置数据库连接
 
-修改 xiaozhi-admin 模块中的数据库配置文件, 修改成自己的数据库连接信息。
+修改 clda-admin 模块中的数据库配置文件, 修改成自己的数据库连接信息。
 路径：src/main/resources/application-druid.yml
 
 ```yaml
@@ -134,7 +134,7 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://localhost:3306/ry-xiaozhi?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                url: jdbc:mysql://localhost:3306/clda?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
                 username: root
                 password: password
 ```
@@ -151,7 +151,7 @@ tar xvf sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
 rm sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
 ```
 
-修改 xiaozhi-chat/src/main/resources/application.yml，配置模型路径
+修改 clda-chat/src/main/resources/application.yml，配置模型路径
 
 ```yaml
 model:
@@ -166,12 +166,12 @@ model:
 OTA 地址示例：http://你的局域网IP:8080/api/ota
 
 ESP32 固件会通过 OTA 接口获取 WS 地址，无需手动配置：
-WebSocket 地址将自动拼接为：ws://你的局域网IP:8082/xiaozhi/v1
+WebSocket 地址将自动拼接为：ws://你的局域网IP:8082/clda/v1
 
 ### 7、配置 LLM 模型（OpenAI 协议兼容）
 
 LLM模型基于Spring AI框架，目前是写死的OpenAI协议的模型，需要配置支持OpenAI协议模型服务商的信息，如下所示。
-修改 xiaozhi-chat/src/main/resources/application.yml。
+修改 clda-chat/src/main/resources/application.yml。
 
 ```yaml
 chat:
@@ -184,7 +184,7 @@ chat:
 ### 8、启动前端后台管理系统
 
 ```shell
-cd xiaozhi-ui
+cd clda-ui
 
 # 使用淘宝源加速依赖安装
 npm install --registry=https://registry.npmmirror.com
@@ -221,7 +221,7 @@ npm run dev
 | 用途 | 本地离线语音识别（支持中、英、日、韩、粤语） |
 | 下载 | https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2 |
 
-下载后解压，在 `xiaozhi-chat/src/main/resources/application.yml` 中配置模型路径：
+下载后解压，在 `clda-chat/src/main/resources/application.yml` 中配置模型路径：
 ```yaml
 model:
   asr:
@@ -251,7 +251,7 @@ model:
 | LWJGL | 3.3.6 | 轻量级 Java 游戏库，提供 Opus 编解码绑定 |
 | Opus | 随 LWJGL 3.3.6 | RFC 6716 音频编解码器 |
 
-已通过 Maven 依赖自动管理，支持的平台（`xiaozhi-chat/pom.xml`）：
+已通过 Maven 依赖自动管理，支持的平台（`clda-chat/pom.xml`）：
 - `natives-windows` — Windows 64位
 - `natives-linux` — Linux 64位
 - `natives-macos-arm64` — macOS Apple Silicon
@@ -266,7 +266,7 @@ model:
 | JavaCV | 1.5.11 | Java 音视频处理框架 |
 | FFmpeg | 7.1 | 音频重采样、格式转换 |
 
-已通过 Maven 依赖管理，支持的平台（`xiaozhi-chat/pom.xml`）：
+已通过 Maven 依赖管理，支持的平台（`clda-chat/pom.xml`）：
 - `windows-x86_64`
 - `linux-x86_64`
 - `macosx-arm64`
@@ -280,7 +280,7 @@ model:
 | Silero VAD | v5 | 基于 ONNX 的语音端点检测 |
 | ONNX Runtime | 1.22.0 | 模型推理引擎 |
 
-模型文件已内置于项目中（`xiaozhi-chat/src/main/resources/model/silero_vad.onnx`），无需额外下载。
+模型文件已内置于项目中（`clda-chat/src/main/resources/model/silero_vad.onnx`），无需额外下载。
 
 ### 6. TTS 语音合成（二选一）
 
