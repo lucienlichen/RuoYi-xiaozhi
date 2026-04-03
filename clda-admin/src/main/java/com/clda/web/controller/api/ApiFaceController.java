@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * 人脸识别接口控制层
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 @RestController

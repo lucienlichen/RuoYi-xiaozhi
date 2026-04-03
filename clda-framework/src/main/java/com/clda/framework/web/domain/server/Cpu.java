@@ -5,7 +5,7 @@ import com.clda.common.utils.Arith;
 /**
  * CPU相关信息
  * 
- * @author ruoyi
+ * @author clda
  */
 public class Cpu
 {

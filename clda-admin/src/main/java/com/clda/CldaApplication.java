@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 /**
  * 启动程序
  * 
- * @author ruoyi
+ * @author clda
  */
 @EnableAsync
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })

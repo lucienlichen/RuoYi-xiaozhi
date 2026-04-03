@@ -3,7 +3,7 @@ package com.clda.system.domain;
 /**
  * 当前在线会话
  * 
- * @author ruoyi
+ * @author clda
  */
 public class SysUserOnline
 {

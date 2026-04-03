@@ -22,7 +22,7 @@ import com.clda.common.core.page.TableDataInfo;
 /**
  * 人脸识别Controller
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @RestController
 @RequiredArgsConstructor

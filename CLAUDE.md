@@ -83,10 +83,13 @@ clda-common          ← shared utilities, security, Redis, MyBatis, JWT
 
 ## Configuration Files
 
-- `clda-admin/src/main/resources/application.yml` — admin server config
-- `clda-admin/src/main/resources/application-druid.yml` — database connection (master DB: `ry-xiaozhi`)
-- `clda-chat/src/main/resources/application.yml` — chat server config (LLM keys, ASR model path, TTS config)
-- `sql/ry-xiaozhi-20250615.sql` — database initialization script
+- `clda-admin/src/main/resources/application.yml` — shared admin config (env-var placeholders)
+- `clda-admin/src/main/resources/application-dev.yml` — dev profile (debug, Swagger on, weak JWT)
+- `clda-admin/src/main/resources/application-prod.yml` — prod profile (Swagger off, strong JWT required)
+- `clda-admin/src/main/resources/application-druid.yml` — database connection (master DB: `clda`)
+- `clda-chat/src/main/resources/application.yml` — chat server config (all secrets via env vars)
+- `sql/clda-20250615.sql` — database initialization script
+- `docker/.env.example` — Docker deployment secrets template
 
 ## Important Notes
 
@@ -94,5 +97,6 @@ clda-common          ← shared utilities, security, Redis, MyBatis, JWT
 - WebSocket chat server uses lightweight Java-WebSocket library, not Spring's WebSocket support
 - Package naming inconsistency: admin uses `com.clda`, chat uses `com.clda.chat`
 - Default admin credentials: admin / admin123
-- Druid monitoring console: `/druid/*` (admin/123456)
+- Profiles: `dev` (default) and `prod` — activate via `SPRING_PROFILES_ACTIVE=prod`
+- All secrets externalized to env vars; never commit `.env` files
 - ESP32 devices connect via OTA endpoint (`/api/ota`) to discover WebSocket address

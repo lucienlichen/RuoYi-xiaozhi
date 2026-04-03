@@ -23,7 +23,7 @@ import com.clda.intellect.service.IEquipmentDataService;
 /**
  * 设备数据采集Controller
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @RestController
 @RequiredArgsConstructor

@@ -7,7 +7,7 @@ import org.springframework.lang.Nullable;
 /**
  * 请求方式
  *
- * @author ruoyi
+ * @author clda
  */
 public enum HttpMethod
 {

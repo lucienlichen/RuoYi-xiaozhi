@@ -6,7 +6,7 @@ import com.clda.intellect.domain.Face;
 /**
  * 人脸识别Service接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface IFaceService {
     /**

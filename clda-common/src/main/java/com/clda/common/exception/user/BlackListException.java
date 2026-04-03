@@ -3,7 +3,7 @@ package com.clda.common.exception.user;
 /**
  * 黑名单IP异常类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class BlackListException extends UserException
 {

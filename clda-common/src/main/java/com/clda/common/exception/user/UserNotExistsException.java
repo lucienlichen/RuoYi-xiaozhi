@@ -3,7 +3,7 @@ package com.clda.common.exception.user;
 /**
  * 用户不存在异常类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class UserNotExistsException extends UserException
 {

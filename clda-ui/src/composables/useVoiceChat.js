@@ -364,9 +364,22 @@ function stopListening() {
 }
 
 // ── Lifecycle ──
+/**
+ * 构建 WebSocket URL：
+ * - 生产环境：走 nginx 反代同源路径，自动适配 ws/wss
+ * - 开发环境：走 vite proxy 转发到 8082
+ * - 可通过 VITE_APP_WS_URL 环境变量完全覆盖
+ */
+function buildDefaultWsUrl() {
+  const envUrl = import.meta.env.VITE_APP_WS_URL
+  if (envUrl) return envUrl
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${proto}//${location.host}/clda/v1`
+}
+
 async function connectVoice(name, options = {}) {
   const {
-    wsBaseUrl = `ws://${location.hostname}:8082/clda/v1`,
+    wsBaseUrl = buildDefaultWsUrl(),
     deviceMac = 'AA:BB:CC:DD:EE:FF',
   } = options
 

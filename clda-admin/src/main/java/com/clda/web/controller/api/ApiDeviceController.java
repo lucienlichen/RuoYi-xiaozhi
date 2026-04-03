@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * 设备接口控制层
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 @RestController

@@ -30,12 +30,12 @@
  │  :8080         │ │  :8082       │ │ :8090        │
  └───────┬────────┘ └──────┬───────┘ └──────────────┘
          │                 │
-         │  ┌──────────┐   │
-         ├─►│  MySQL   │◄──┤
-         │  │  :3306   │   │
-         │  └──────────┘   │
-         │  ┌──────────┐   │
-         └─►│  Redis   │◄──┘
+         │  ┌──────────┐   │      ┌──────────────┐
+         ├─►│  MySQL   │◄──┤      │  MinIO       │
+         │  │  :3306   │   │      │  :9000/:9001 │
+         │  └──────────┘   │      └──────┬───────┘
+         │  ┌──────────┐   │             │
+         └─►│  Redis   │◄──┘     clda-admin 上传/下载文件
             │  :6379   │
             └──────────┘
 ```
@@ -48,6 +48,7 @@
 | clda-admin | 8080 | REST API、文件上传、OCR处理、LLM结构化 |
 | clda-chat | 8082 | WebSocket 语音对话、ASR/TTS |
 | clda-enhance | 8090 | Python 图片超分辨率增强（Real-ESRGAN） |
+| MinIO | 9000/9001 | 对象存储（文件上传）/ 管理控制台 |
 | MySQL | 3306 | 主数据库（utf8mb4_unicode_ci） |
 | Redis | 6379 | 缓存和配置存储 |
 
@@ -93,7 +94,10 @@ tar xvf sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
 | MySQL 地址 | `localhost:3306` | `mysql:3306` | 容器内网络 |
 | MySQL 密码 | `root` | `clda123` | 自定义强密码 |
 | Redis 地址 | `localhost` | `redis` | 容器内网络 |
-| 文件上传路径 | `D:/clda/uploadPath` | `/opt/clda/uploadPath` | Linux 容器路径 |
+| MinIO Endpoint | `http://localhost:9000` | `http://minio:9000` | 容器内网络 |
+| MinIO Access Key | `minioadmin` | 自定义（建议修改） | MinIO 访问密钥 |
+| MinIO Secret Key | `minioadmin` | 自定义（建议修改） | MinIO 密钥，≥8字符 |
+| MinIO Bucket | `clda` | `clda` | 存储桶名称 |
 | OCR tessdata 路径 | `/usr/local/share/tessdata` | `/usr/share/tesseract-ocr/5/tessdata` | 容器内 Tesseract 数据路径 |
 | 图片增强服务地址 | `http://localhost:8090` | `http://clda-enhance:8090` | 容器内网络 |
 | LLM API Key | `sk-placeholder` | 你的 API Key | 管理端 AI 配置页面可修改 |
@@ -130,7 +134,7 @@ project-root/
 ├── models/
 │   └── sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/
 ├── sql/
-│   ├── ry-xiaozhi-20250615.sql    # 系统基础表
+│   ├── clda-20250615.sql    # 系统基础表
 │   └── emds-v2-init.sql           # 业务表 + 分类 + 模板
 ├── clda-admin/target/clda-admin.jar
 ├── clda-chat/target/clda-chat.jar
@@ -152,9 +156,9 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_ROOT_PASSWORD: clda123
-      MYSQL_DATABASE: ry-xiaozhi
+      MYSQL_DATABASE: clda
     volumes:
-      - ../sql/ry-xiaozhi-20250615.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ../sql/clda-20250615.sql:/docker-entrypoint-initdb.d/01-init.sql
       - ../sql/emds-v2-init.sql:/docker-entrypoint-initdb.d/02-emds.sql
       - mysql-data:/var/lib/mysql
     ports:
@@ -175,6 +179,26 @@ services:
     networks:
       - clda-net
 
+  minio:
+    image: minio/minio:RELEASE.2024-11-07T00-52-20Z
+    container_name: clda-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin123}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clda-net
+
   clda-admin:
     build:
       context: ..
@@ -182,13 +206,16 @@ services:
     container_name: clda-admin
     environment:
       # MySQL
-      SPRING_DATASOURCE_DRUID_MASTER_URL: jdbc:mysql://mysql:3306/ry-xiaozhi?useUnicode=true&characterEncoding=utf8mb4&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+      SPRING_DATASOURCE_DRUID_MASTER_URL: jdbc:mysql://mysql:3306/clda?useUnicode=true&characterEncoding=utf8mb4&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
       SPRING_DATASOURCE_DRUID_MASTER_USERNAME: root
       SPRING_DATASOURCE_DRUID_MASTER_PASSWORD: clda123
       # Redis
       SPRING_DATA_REDIS_HOST: redis
-      # 文件上传路径
-      CLDA_PROFILE: /opt/clda/uploadPath
+      # MinIO
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin123}
+      MINIO_BUCKET: ${MINIO_BUCKET:-clda}
       # OCR 配置
       CLDA_OCR_TESSDATA__PATH: /usr/share/tesseract-ocr/5/tessdata
       CLDA_OCR_LANGUAGE: chi_sim+eng
@@ -203,13 +230,13 @@ services:
       JAVA_OPTS: "-Djna.library.path=/usr/lib/x86_64-linux-gnu"
     ports:
       - "8080:8080"
-    volumes:
-      - upload-data:/opt/clda/uploadPath
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_started
+      minio:
+        condition: service_healthy
     networks:
       - clda-net
 
@@ -245,12 +272,8 @@ services:
       context: ../clda-enhance
       dockerfile: Dockerfile
     container_name: clda-enhance
-    environment:
-      UPLOAD_BASE_PATH: /opt/clda/uploadPath
     ports:
       - "8090:8090"
-    volumes:
-      - upload-data:/opt/clda/uploadPath
     networks:
       - clda-net
 
@@ -269,7 +292,7 @@ services:
 
 volumes:
   mysql-data:
-  upload-data:
+  minio-data:
 
 networks:
   clda-net:
@@ -408,6 +431,7 @@ docker-compose logs -f clda-enhance   # 图片增强服务日志
 | Admin API | http://localhost:8080 | REST API |
 | Chat WebSocket | ws://localhost:8082/clda/v1 | 语音对话 |
 | 图片增强 | http://localhost:8090/health | 应返回 `{"status":"ok"}` |
+| MinIO 控制台 | http://localhost:9001 | 文件管理，默认账号 minioadmin / minioadmin123 |
 
 ### 6.3 首次配置
 
@@ -431,8 +455,15 @@ docker-compose logs -f clda-enhance   # 图片增强服务日志
 
 ```bash
 docker-compose down        # 停止并删除容器
-docker-compose down -v     # 同时删除数据卷（会丢失数据库和上传文件）
+docker-compose down -v     # 同时删除数据卷（⚠️ 会丢失数据库和 MinIO 中的所有上传文件，不可恢复）
 ```
+
+> **警告**：`-v` 标志会删除 `minio-data` 卷中的全部上传文件。生产环境请提前备份：
+> ```bash
+> # 使用 mc 工具备份 MinIO 数据（mc 已内置在 minio 镜像中）
+> docker run --rm --network clda-net \
+>   minio/mc mirror minio/clda /backup/clda-files
+> ```
 
 ## 7. 数据处理流水线说明
 
@@ -499,6 +530,33 @@ docker-compose up -d
 ### 上传大文件超时
 Nginx 默认限制请求体大小。已在 nginx.conf 中设置 `client_max_body_size 100m`，如需更大文件请调整此值和 `proxy_read_timeout`。
 
+### MinIO 连接失败 / 文件无法显示
+- 确认 MinIO 容器已健康：`docker ps` 查看 `clda-minio` 的 `STATUS`，应为 `healthy`
+- `clda-admin` 的 `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` 必须与 MinIO 容器的 `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` 一致
+- 图片 URL 格式：`/prod-api/common/minio/upload/crane/1/...`，若出现 404 说明 MinIO 中没有该对象或 objectKey 不匹配
+- 访问 MinIO 控制台 http://localhost:9001 → 浏览 `clda` 桶，确认文件存在
+
 ### ESP32 设备连接
 - OTA 地址：`http://你的Windows主机IP:8080/api/ota`
 - 设备会自动获取 WebSocket 地址：`ws://你的Windows主机IP:8082/clda/v1`
+
+## 9. 存量数据迁移（旧版升级）
+
+如果你从旧版（文件保存在本地 `upload-data` 卷）升级到 MinIO 版本：
+
+1. **旧记录向后兼容**：数据库中路径以 `/profile/...` 开头的记录仍通过本地文件系统访问，无需修改。
+2. **迁移旧文件到 MinIO**（可选，让文件统一管理）：
+   ```bash
+   # 进入旧 upload-data 卷（通过旧版容器获取数据）
+   docker run --rm -v upload-data:/src \
+     --network clda-net \
+     minio/mc \
+     sh -c "mc alias set local http://minio:9000 minioadmin minioadmin123 && \
+            mc mirror /src local/clda/upload/"
+   ```
+3. 迁移完成后，可将数据库中的旧路径更新为 MinIO key（可选）：
+   ```sql
+   -- 将 /profile/upload/... 格式更新为 /minio/upload/...
+   UPDATE data_file SET file_path = CONCAT('/minio', SUBSTRING(file_path, 9))
+   WHERE file_path LIKE '/profile/%';
+   ```

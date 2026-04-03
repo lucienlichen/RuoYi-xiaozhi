@@ -15,7 +15,7 @@ import { InfoFilled } from '@element-plus/icons-vue'
 defineProps({
   title: { type: String, default: '' },
   desc: { type: String, default: '' },
-  color: { type: String, default: '#909399' },
+  color: { type: String, default: 'var(--ds-outline)' },
   status: { type: String, default: '' },
 })
 </script>
@@ -33,13 +33,13 @@ defineProps({
   h2 {
     font-size: 22px;
     font-weight: 600;
-    color: #303133;
+    color: var(--ds-on-surface);
     margin: 20px 0 12px;
   }
 
   p {
     font-size: 15px;
-    color: #909399;
+    color: var(--ds-outline);
     line-height: 1.6;
     margin-bottom: 20px;
     max-width: 480px;

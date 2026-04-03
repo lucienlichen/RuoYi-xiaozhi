@@ -8,9 +8,27 @@
           <span>返回菜单</span>
         </el-button>
       </div>
-      <h1 class="robot-header__title">{{ currentServiceName }}</h1>
+      <div class="robot-header__center">
+        <h1 class="robot-header__title">{{ currentServiceName }}</h1>
+        <span v-if="equipmentName" class="robot-header__equip">{{ equipmentName }}</span>
+      </div>
       <div class="robot-header__right">
         <span class="user-name">{{ userStore.nickName || userStore.name }}</span>
+        <el-dropdown trigger="click" @command="handleSettingsCommand">
+          <el-button text class="settings-btn">
+            <el-icon :size="20"><Setting /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="partition">
+                <el-icon><OfficeBuilding /></el-icon>区域管理
+              </el-dropdown-item>
+              <el-dropdown-item command="equipment">
+                <el-icon><SetUp /></el-icon>设备管理
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </header>
 
@@ -19,11 +37,11 @@
       <robot-app />
     </main>
 
-    <!-- Bottom AI assistant bar -->
+    <!-- Bottom AI assistant bar (3x2 grid, AI assistants only) -->
     <footer class="robot-footer">
       <div class="ai-bar">
         <button
-          v-for="item in aiButtons"
+          v-for="item in aiAssistants"
           :key="item.service"
           class="ai-bar__btn"
           :class="{ active: currentService === item.service }"
@@ -31,8 +49,8 @@
           @click="switchService(item.service)"
           :title="item.name"
         >
-          <el-icon :size="18"><component :is="item.icon" /></el-icon>
-          <span class="ai-bar__label">{{ item.shortName }}</span>
+          <el-icon :size="20"><component :is="item.icon" /></el-icon>
+          <span class="ai-bar__label">{{ item.name }}</span>
         </button>
       </div>
     </footer>
@@ -43,30 +61,27 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ArrowLeft, OfficeBuilding, SetUp } from '@element-plus/icons-vue'
-import RobotApp from '@/views/robot/app.vue'
+import { ArrowLeft, OfficeBuilding, SetUp, Setting } from '@element-plus/icons-vue'
 import VoiceChatPanel from '@/components/VoiceChatPanel/index.vue'
+
+const RobotApp = defineAsyncComponent(() => import('@/views/robot/app.vue'))
 import { aiAssistants } from '@/config/aiAssistants'
 import useUserStore from '@/store/modules/user'
+import useEquipmentStore from '@/store/modules/equipment'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const equipmentStore = useEquipmentStore()
 
 const currentService = computed(() => route.query.service || 'data_service_ai')
 
-const aiButtons = [
-  // 业务管理
-  { name: '区域管理', shortName: '区域', service: 'partition', icon: OfficeBuilding, color: '#8B5CF6' },
-  { name: '设备管理', shortName: '设备', service: 'equipment', icon: SetUp, color: '#06B6D4' },
-  // AI助手（共享配置）
-  ...aiAssistants,
-]
+const equipmentName = computed(() => equipmentStore.selectedEquipment?.equipmentName || '')
 
 const currentServiceName = computed(() => {
-  const found = aiButtons.find(b => b.service === currentService.value)
+  const found = aiAssistants.find(b => b.service === currentService.value)
   return found ? found.name : '起重装备全生命周期数据AI智能体'
 })
 
@@ -76,6 +91,10 @@ function goBack() {
 
 function switchService(service) {
   router.replace({ path: '/robot/app', query: { service } })
+}
+
+function handleSettingsCommand(command) {
+  switchService(command)
 }
 </script>
 
@@ -89,7 +108,7 @@ function switchService(service) {
 }
 
 .robot-header {
-  height: 56px;
+  height: 64px;
   background: var(--ds-surface-container-low);
   box-shadow: var(--ds-shadow-sm);
   display: flex;
@@ -107,21 +126,47 @@ function switchService(service) {
   .el-icon { margin-right: 4px; }
 }
 
+.robot-header__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
 .robot-header__title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--ds-on-surface);
   text-align: center;
+  line-height: 1.3;
+}
+
+.robot-header__equip {
+  font-size: 12px;
+  color: var(--ds-on-surface-variant);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .robot-header__right {
   flex: 1;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .user-name {
   font-size: 14px;
   color: var(--ds-on-surface-variant);
+}
+
+.settings-btn {
+  color: var(--ds-on-surface-variant);
+  padding: 6px;
+  &:hover { color: var(--ds-on-surface); }
 }
 
 .robot-main {
@@ -133,59 +178,67 @@ function switchService(service) {
 .robot-footer {
   flex-shrink: 0;
   background: var(--ds-surface-container-low);
-  box-shadow: var(--ds-shadow-sm);
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px 16px;
   z-index: 10;
 }
 
 .ai-bar {
-  flex: 1;
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
 }
 
 .ai-bar__btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 6px 10px;
-  border: none;
+  justify-content: center;
+  gap: 4px;
+  min-height: 52px;
+  padding: 8px 6px;
+  border: 1px solid transparent;
   border-radius: var(--ds-radius);
-  background: transparent;
+  background: var(--ds-surface-container);
   color: var(--ds-on-surface-variant);
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
 
   &:hover {
-    background: var(--ds-surface-container);
+    background: var(--ds-surface-container-high);
     color: var(--btn-color);
+    border-color: color-mix(in srgb, var(--btn-color) 20%, transparent);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 
   &.active {
-    background: color-mix(in srgb, var(--btn-color) 10%, transparent);
+    background: color-mix(in srgb, var(--btn-color) 12%, transparent);
+    backdrop-filter: blur(var(--ds-glass-blur));
+    border-color: color-mix(in srgb, var(--btn-color) 30%, transparent);
     color: var(--btn-color);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--btn-color) 15%, transparent);
   }
 }
 
 .ai-bar__label {
-  font-size: 11px;
-  line-height: 1;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
 }
 
 @media (max-width: 820px) and (orientation: portrait) {
-  .robot-header { height: 48px; padding: 0 12px; }
-  .robot-header__title { font-size: 14px; }
-  .robot-main { padding: 12px; }
-  .robot-footer { padding: 6px 8px; }
-  .ai-bar__btn { padding: 4px 8px; }
-  .ai-bar__label { font-size: 10px; }
+  .robot-header { height: 56px; padding: 0 12px; }
+  .robot-header__title { font-size: 16px; }
+  .robot-header__equip { max-width: 180px; font-size: 11px; }
+  .robot-main { padding: 10px; }
+  .robot-footer { padding: 8px 10px; }
+  .ai-bar { gap: 6px; }
+  .ai-bar__btn { min-height: 48px; padding: 6px 4px; }
+  .ai-bar__label { font-size: 11px; }
+  .user-name { display: none; }
 }
 </style>

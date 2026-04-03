@@ -1,0 +1,41 @@
+# ========================================
+# CLDA Admin - Production Profile
+# ========================================
+# 生产环境配置，所有敏感值从环境变量读取
+# 激活方式: SPRING_PROFILES_ACTIVE=prod
+# 必须配合 .env 文件或环境变量使用
+
+spring:
+  # 生产环境禁用热部署
+  devtools:
+    restart:
+      enabled: false
+
+# 生产环境日志（精简）
+logging:
+  level:
+    com.clda: info
+    org.springframework: warn
+
+# 生产环境覆盖
+clda:
+  profile: /home/clda/uploadPath
+  minio:
+    access-key: ${MINIO_ACCESS_KEY:UNCONFIGURED}
+    secret-key: ${MINIO_SECRET_KEY:UNCONFIGURED}
+
+# 生产环境 JWT（必须通过环境变量设置强密钥）
+token:
+  secret: ${TOKEN_SECRET:UNCONFIGURED}
+  expireTime: ${TOKEN_EXPIRE_TIME:30}
+
+# CORS - 生产环境限制为具体域名
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://clda.example.com}
+
+# Springdoc/Swagger - 生产环境禁用
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

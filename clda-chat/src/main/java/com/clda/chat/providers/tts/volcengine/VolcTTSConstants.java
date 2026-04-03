@@ -2,7 +2,7 @@ package com.clda.chat.providers.tts.volcengine;
 
 /**
  * 火山引擎TTS常量
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public class VolcTTSConstants {
     private VolcTTSConstants() {

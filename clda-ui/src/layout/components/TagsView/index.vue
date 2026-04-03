@@ -99,7 +99,7 @@ function isAffix(tag) {
 
 function isFirstView() {
   try {
-    return selectedTag.value.fullPath === '/index' || selectedTag.value.fullPath === visitedViews.value[1].fullPath
+    return selectedTag.value.fullPath === '/admin/dashboard' || selectedTag.value.fullPath === visitedViews.value[1].fullPath
   } catch (err) {
     return false
   }
@@ -261,9 +261,8 @@ function handleScroll() {
 .tags-view-container {
   height: 34px;
   width: 100%;
-  background: var(--tags-bg, #fff);
-  border-bottom: 1px solid var(--tags-item-border, #d8dce5);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+  background: var(--ds-surface-container-lowest);
+  box-shadow: var(--ds-shadow-sm);
 
   .tags-view-wrapper {
     .tags-view-item {
@@ -272,9 +271,9 @@ function handleScroll() {
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid var(--tags-item-border, #d8dce5);
-      color: var(--tags-item-text, #495060);
-      background: var(--tags-item-bg, #fff);
+      border: none;
+      color: var(--ds-on-surface-variant);
+      background: var(--ds-surface-container-low);
       padding: 0 8px;
       font-size: 12px;
       margin-left: 5px;
@@ -289,13 +288,13 @@ function handleScroll() {
       }
 
       &.active {
-        background-color: #42b983;
-        color: #fff;
-        border-color: #42b983;
+        background-color: var(--ds-primary);
+        color: var(--ds-on-primary);
+        border-color: var(--ds-primary);
 
         &::before {
           content: '';
-          background: #fff;
+          background: var(--ds-on-primary);
           display: inline-block;
           width: 8px;
           height: 8px;
@@ -309,17 +308,17 @@ function handleScroll() {
 
   .contextmenu {
     margin: 0;
-    background: var(--el-bg-color-overlay, #fff);
+    background: var(--ds-surface-container-lowest);
     z-index: 3000;
     position: absolute;
     list-style-type: none;
     padding: 5px 0;
-    border-radius: 4px;
+    border-radius: var(--ds-radius);
     font-size: 12px;
     font-weight: 400;
-    color: var(--tags-item-text, #333);
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
-    border: 1px solid var(--el-border-color-light, #e4e7ed);
+    color: var(--ds-on-surface);
+    box-shadow: var(--ds-shadow-lg);
+    border: none;
 
     li {
       margin: 0;
@@ -327,7 +326,7 @@ function handleScroll() {
       cursor: pointer;
 
       &:hover {
-        background: var(--tags-item-hover, #eee);
+        background: var(--ds-surface-container-low);
       }
     }
   }
@@ -354,8 +353,8 @@ function handleScroll() {
       }
 
       &:hover {
-        background-color: var(--tags-close-hover, #b4bccc);
-        color: #fff;
+        background-color: var(--ds-outline);
+        color: var(--ds-on-primary);
         width: 12px !important;
         height: 12px !important;
       }

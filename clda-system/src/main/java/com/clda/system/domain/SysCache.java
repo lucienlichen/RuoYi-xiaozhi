@@ -5,7 +5,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * 缓存信息
  * 
- * @author ruoyi
+ * @author clda
  */
 public class SysCache
 {

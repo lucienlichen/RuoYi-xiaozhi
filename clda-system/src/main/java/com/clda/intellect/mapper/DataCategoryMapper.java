@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * 数据分类Mapper接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface DataCategoryMapper extends CommonMapper<DataCategory> {
 

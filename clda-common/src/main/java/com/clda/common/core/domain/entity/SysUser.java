@@ -15,7 +15,7 @@ import com.clda.common.xss.Xss;
 /**
  * 用户对象 sys_user
  * 
- * @author ruoyi
+ * @author clda
  */
 public class SysUser extends BaseEntity
 {

@@ -15,7 +15,7 @@ import com.clda.common.constant.Constants;
 /**
  * 构建可重复读取inputStream的request
  * 
- * @author ruoyi
+ * @author clda
  */
 public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper
 {

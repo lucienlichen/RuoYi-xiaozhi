@@ -23,7 +23,7 @@ import com.clda.system.service.ISysMenuService;
 /**
  * 登录验证
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestController
 public class SysLoginController

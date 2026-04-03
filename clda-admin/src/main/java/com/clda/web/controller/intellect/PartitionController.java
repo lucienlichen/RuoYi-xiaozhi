@@ -14,7 +14,7 @@ import com.clda.intellect.service.IPartitionService;
 /**
  * 设备分区Controller
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @RestController
 @RequiredArgsConstructor

@@ -13,7 +13,7 @@ import java.nio.ShortBuffer;
 
 /**
  * AudioOpusEncoder
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 public class AudioOpusEncoder implements Closeable {

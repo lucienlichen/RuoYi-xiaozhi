@@ -6,7 +6,7 @@ import com.clda.system.domain.SysPost;
 /**
  * 岗位信息 数据层
  * 
- * @author ruoyi
+ * @author clda
  */
 public interface SysPostMapper
 {

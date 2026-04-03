@@ -12,7 +12,7 @@ import com.clda.common.enums.DesensitizedType;
 /**
  * 数据脱敏注解
  *
- * @author ruoyi
+ * @author clda
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

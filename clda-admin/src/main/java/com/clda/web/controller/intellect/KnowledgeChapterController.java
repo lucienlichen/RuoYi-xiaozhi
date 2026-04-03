@@ -1,12 +1,11 @@
 package com.clda.web.controller.intellect;
 
 import com.clda.common.annotation.Log;
-import com.clda.common.config.CldaConfig;
 import com.clda.common.core.controller.BaseController;
 import com.clda.common.core.domain.AjaxResult;
 import com.clda.common.enums.BusinessType;
 import com.clda.common.utils.SecurityUtils;
-import com.clda.common.utils.file.FileUploadUtils;
+import com.clda.common.utils.minio.MinioService;
 import com.clda.intellect.domain.KnowledgeChapter;
 import com.clda.intellect.service.IKnowledgeChapterService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class KnowledgeChapterController extends BaseController {
 
     private final IKnowledgeChapterService chapterService;
+    private final MinioService minioService;
 
     /** 查询书籍章节树（不含正文，供管理端和业务端列表使用） */
     @GetMapping("/tree")
@@ -49,8 +49,8 @@ public class KnowledgeChapterController extends BaseController {
             @RequestParam("bookId") Long bookId,
             @RequestParam("title") String title,
             @RequestParam(value = "orderNum", required = false, defaultValue = "0") Integer orderNum) throws Exception {
-        String uploadPath = CldaConfig.getUploadPath() + "/knowledge";
-        String filePath = FileUploadUtils.upload(uploadPath, file);
+        String objectKey = minioService.upload(file, "upload/knowledge");
+        String filePath = "/minio/" + objectKey;
 
         KnowledgeChapter chapter = new KnowledgeChapter();
         chapter.setBookId(bookId);

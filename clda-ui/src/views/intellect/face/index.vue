@@ -155,6 +155,7 @@
 <script setup name="Face">
 import { listFace, getFace, delFace, addFace, updateFace } from "@/api/intellect/face"
 import { Camera, CircleCheck, CircleClose } from '@element-plus/icons-vue'
+import * as faceapi from '@vladmandic/face-api'
 
 const { proxy } = getCurrentInstance()
 
@@ -177,7 +178,7 @@ const detecting = ref(false)
 const faceDetected = ref(false)
 const faceError = ref("")
 let mediaStream = null
-let faceApiLoaded = false
+// face-api.js 通过 npm import 加载，无需动态 script 注入
 let modelsLoaded = false
 
 const data = reactive({
@@ -312,25 +313,10 @@ function handleDialogClose() {
 
 // ===================== 摄像头与人脸检测 =====================
 
-/** 动态加载 face-api.js */
-async function loadFaceApi() {
-  if (faceApiLoaded) return
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script')
-    script.src = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js'
-    script.onload = () => {
-      faceApiLoaded = true
-      resolve()
-    }
-    script.onerror = () => reject(new Error('face-api.js 加载失败'))
-    document.head.appendChild(script)
-  })
-}
-
-/** 加载人脸检测模型（使用轻量级模型避免卡顿） */
+/** 加载人脸检测模型（从本地 public 目录加载，支持离线内网部署） */
 async function loadModels() {
   if (modelsLoaded) return
-  const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/'
+  const MODEL_URL = '/models/face-api/'
   await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL)
   await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL)
   await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
@@ -343,7 +329,6 @@ async function startCamera() {
     faceError.value = ""
     // 先加载模型，再打开摄像头，避免拍照时卡顿
     faceError.value = "正在加载人脸模型..."
-    await loadFaceApi()
     await loadModels()
     faceError.value = ""
 
@@ -385,10 +370,6 @@ async function capturePhoto() {
   stopCamera()
 
   try {
-    // 确保 face-api.js 已加载
-    if (!faceApiLoaded) {
-      await loadFaceApi()
-    }
     if (!modelsLoaded) {
       await loadModels()
     }

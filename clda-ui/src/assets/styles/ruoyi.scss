@@ -78,8 +78,8 @@
   .el-table__header-wrapper, .el-table__fixed-header-wrapper {
     th {
       word-break: break-word;
-      background-color: #f8f8f9 !important;
-      color: #515a6e;
+      background-color: var(--ds-surface-container-low) !important;
+      color: var(--ds-on-surface-variant);
       height: 40px !important;
       font-size: 13px;
     }
@@ -93,11 +93,12 @@
 
 /** 表单布局 **/
 .form-header {
-  font-size:15px;
-  color:#6379bb;
-  border-bottom:1px solid #ddd;
-  margin:8px 10px 25px 10px;
-  padding-bottom:5px
+  font-size: 15px;
+  color: var(--ds-primary);
+  background: var(--ds-surface-container-low);
+  margin: 8px 10px 25px 10px;
+  padding: 8px 12px;
+  border-radius: var(--ds-radius-sm);
 }
 
 /** 表格布局 **/
@@ -151,7 +152,7 @@
 /** 表格更多操作下拉样式 */
 .el-table .el-dropdown-link {
   cursor: pointer;
-  color: #409EFF;
+  color: var(--el-color-primary);
   margin-left: 10px;
 }
 
@@ -177,8 +178,8 @@
 }
 
 .list-group-item {
-  border-bottom: 1px solid #e7eaec;
-  border-top: 1px solid #e7eaec;
+  border-bottom: 1px solid var(--ds-surface-container, #e7eaec);
+  border-top: 1px solid var(--ds-surface-container, #e7eaec);
   margin-bottom: -1px;
   padding: 11px 0px;
   font-size: 13px;
@@ -204,52 +205,33 @@
 /* button color */
 .el-button--cyan.is-active,
 .el-button--cyan:active {
-  background: #20B2AA;
-  border-color: #20B2AA;
+  background: var(--ds-secondary);
+  border-color: var(--ds-secondary);
   color: #FFFFFF;
 }
 
 .el-button--cyan:focus,
 .el-button--cyan:hover {
-  background: #48D1CC;
-  border-color: #48D1CC;
+  background: var(--ds-secondary);
+  border-color: var(--ds-secondary);
   color: #FFFFFF;
+  opacity: 0.85;
 }
 
 .el-button--cyan {
-  background-color: #20B2AA;
-  border-color: #20B2AA;
+  background-color: var(--ds-secondary);
+  border-color: var(--ds-secondary);
   color: #FFFFFF;
 }
 
 /* text color */
-.text-navy {
-  color: #1ab394;
-}
-
-.text-primary {
-  color: inherit;
-}
-
-.text-success {
-  color: #1c84c6;
-}
-
-.text-info {
-  color: #23c6c8;
-}
-
-.text-warning {
-  color: #f8ac59;
-}
-
-.text-danger {
-  color: #ed5565;
-}
-
-.text-muted {
-  color: #888888;
-}
+.text-navy { color: var(--ds-secondary); }
+.text-primary { color: inherit; }
+.text-success { color: var(--ds-success); }
+.text-info { color: var(--ds-outline); }
+.text-warning { color: var(--ds-warning); }
+.text-danger { color: var(--ds-error); }
+.text-muted { color: var(--ds-outline); }
 
 /* image */
 .img-circle {
@@ -268,7 +250,7 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  box-shadow: 0 0 4px #ccc;
+  box-shadow: var(--ds-shadow-md);
   overflow: hidden;
 }
 

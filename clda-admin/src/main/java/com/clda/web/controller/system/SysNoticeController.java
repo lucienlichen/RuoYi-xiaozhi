@@ -23,7 +23,7 @@ import com.clda.system.service.ISysNoticeService;
 /**
  * 公告 信息操作处理
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestController
 @RequestMapping("/system/notice")

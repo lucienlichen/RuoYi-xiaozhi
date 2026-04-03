@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 /**
  * 火山引擎双向流式TTS
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 public class VolcTTSProvider extends BaseTTSProvider {

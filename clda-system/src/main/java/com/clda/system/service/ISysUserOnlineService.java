@@ -6,7 +6,7 @@ import com.clda.system.domain.SysUserOnline;
 /**
  * 在线用户 服务层
  * 
- * @author ruoyi
+ * @author clda
  */
 public interface ISysUserOnlineService
 {

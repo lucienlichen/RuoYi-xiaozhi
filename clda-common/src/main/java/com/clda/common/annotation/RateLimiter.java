@@ -11,7 +11,7 @@ import com.clda.common.enums.LimitType;
 /**
  * 限流注解
  * 
- * @author ruoyi
+ * @author clda
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

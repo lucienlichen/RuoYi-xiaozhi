@@ -9,7 +9,7 @@ import com.clda.feign.vo.DeviceDetailVo;
 /**
  * 设备管理Service接口
  * 
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface IDeviceService {
     /**

@@ -1,96 +1,106 @@
-// cover some element-ui styles
+/**
+ * EMDS-V2 Element Plus Overrides
+ * All overrides use --ds-* / --el-* tokens. No hardcoded colors.
+ */
 
+/* ===== Breadcrumb ===== */
 .el-breadcrumb__inner,
 .el-breadcrumb__inner a {
   font-weight: 400 !important;
 }
 
-.el-upload {
-  input[type="file"] {
-    display: none !important;
-  }
+/* ===== Upload ===== */
+.el-upload input[type="file"] { display: none !important; }
+.el-upload__input { display: none; }
+
+/* ===== Tags ===== */
+.cell .el-tag { margin-right: 0px; }
+.small-padding .cell { padding-left: 5px; padding-right: 5px; }
+.fixed-width .el-button--mini { padding: 7px 10px; width: 60px; }
+.status-col .cell {
+  padding: 0 10px;
+  text-align: center;
+  .el-tag { margin-right: 0px; }
 }
 
-.el-upload__input {
-  display: none;
-}
-
-.cell {
-  .el-tag {
-    margin-right: 0px;
-  }
-}
-
-.small-padding {
-  .cell {
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-}
-
-.fixed-width {
-  .el-button--mini {
-    padding: 7px 10px;
-    width: 60px;
-  }
-}
-
-.status-col {
-  .cell {
-    padding: 0 10px;
-    text-align: center;
-
-    .el-tag {
-      margin-right: 0px;
-    }
-  }
-}
-
-// to fixed https://github.com/ElemeFE/element/issues/2461
+/* ===== Dialog — EMDS-V2 elevation ===== */
 .el-dialog {
   transform: none;
   left: 0;
   position: relative;
   margin: 0 auto;
+  border-radius: var(--ds-radius-lg) !important;
+  box-shadow: var(--ds-shadow-xl) !important;
 }
 
-// refine element ui upload
+/* ===== Drawer — EMDS-V2 elevation ===== */
+.el-drawer {
+  box-shadow: var(--ds-shadow-xl) !important;
+}
+
+/* ===== Button — EMDS-V2 styling ===== */
+.el-button--primary {
+  background: linear-gradient(135deg, var(--ds-primary), var(--ds-primary-container));
+  border-color: var(--ds-primary);
+  &:hover, &:focus {
+    background: linear-gradient(135deg, var(--ds-primary-container), var(--ds-primary));
+    border-color: var(--ds-primary-container);
+  }
+}
+
+/* ===== Table — EMDS-V2 header ===== */
+.el-table {
+  --el-table-header-bg-color: var(--ds-surface-container-low);
+  --el-table-header-text-color: var(--ds-on-surface-variant);
+  .el-table__header-wrapper th,
+  .el-table__fixed-header-wrapper th {
+    background-color: var(--ds-surface-container-low) !important;
+    color: var(--ds-on-surface-variant);
+  }
+}
+
+/* ===== Card — No borders, shadow elevation ===== */
+.el-card {
+  border: none !important;
+  box-shadow: var(--ds-shadow-sm) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  background-color: var(--ds-surface-container-lowest);
+}
+
+/* ===== Tag — Pill shape per DESIGN.md ===== */
+.el-tag {
+  border-radius: var(--ds-radius-full);
+}
+
+/* ===== Input / Select — Tonal background ===== */
+.el-input__wrapper,
+.el-textarea__inner {
+  border-radius: var(--ds-radius) !important;
+}
+
+/* ===== Upload container ===== */
 .upload-container {
-  .el-upload {
-    width: 100%;
-
-    .el-upload-dragger {
-      width: 100%;
-      height: 200px;
-    }
-  }
+  .el-upload { width: 100%; }
+  .el-upload-dragger { width: 100%; height: 200px; }
 }
 
-// dropdown
+/* ===== Dropdown ===== */
+.el-dropdown-menu a { display: block; }
 .el-dropdown-menu {
-  a {
-    display: block
-  }
+  border-radius: var(--ds-radius) !important;
+  box-shadow: var(--ds-shadow-lg) !important;
 }
 
-// fix date-picker ui bug in filter-item
-.el-range-editor.el-input__inner {
-  display: inline-flex !important;
-}
+/* ===== Date Picker fixes ===== */
+.el-range-editor.el-input__inner { display: inline-flex !important; }
+.el-range-separator { box-sizing: content-box; }
 
-// to fix el-date-picker css style
-.el-range-separator {
-  box-sizing: content-box;
-}
-
-.el-menu--collapse
-  > div
-  > .el-submenu
-  > .el-submenu__title
-  .el-submenu__icon-arrow {
+/* ===== Menu collapse ===== */
+.el-menu--collapse > div > .el-submenu > .el-submenu__title .el-submenu__icon-arrow {
   display: none;
 }
 
-.el-dropdown .el-dropdown-link{
+/* ===== Dropdown link ===== */
+.el-dropdown .el-dropdown-link {
   color: var(--el-color-primary) !important;
 }

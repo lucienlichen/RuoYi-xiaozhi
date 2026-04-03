@@ -24,7 +24,7 @@ import com.clda.common.core.page.TableDataInfo;
 /**
  * 智能体Controller
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  * @date 2025-06-14
  */
 @RestController

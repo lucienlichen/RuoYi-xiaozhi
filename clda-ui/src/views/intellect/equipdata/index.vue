@@ -25,7 +25,7 @@
 
     <!-- No equipment selected prompt -->
     <div v-if="!selectedEquipment" class="no-equip-state">
-      <el-icon :size="48" color="#cbd5e1"><Monitor /></el-icon>
+      <el-icon :size="48" class="icon-muted"><Monitor /></el-icon>
       <p>请先在左侧选择一台设备</p>
     </div>
 
@@ -59,7 +59,7 @@
               style="width: 100%"
             />
             <div class="year-picker-hint">
-              <el-icon color="#003178"><Calendar /></el-icon>
+              <el-icon class="icon-primary"><Calendar /></el-icon>
               <span>{{ selectedYear || '未选择' }}年 · {{ currentCategoryName }}</span>
             </div>
           </div>
@@ -68,7 +68,7 @@
           <div v-else class="calendar-card">
             <div class="calendar-header">
               <div class="calendar-header-left">
-                <el-icon color="#003178"><Calendar /></el-icon>
+                <el-icon class="icon-primary"><Calendar /></el-icon>
                 <span class="month-count">本月 {{ monthDataCount }} 条</span>
               </div>
               <div class="calendar-nav">
@@ -110,7 +110,7 @@
           <!-- Tip card -->
           <div class="tip-card">
             <div class="tip-header">
-              <el-icon color="#003178"><InfoFilled /></el-icon>
+              <el-icon class="icon-primary"><InfoFilled /></el-icon>
               <span>{{ currentCategoryName }}提示</span>
             </div>
             <p class="tip-text">
@@ -150,7 +150,7 @@
           <!-- Empty state -->
           <div v-if="dataRecords.length === 0 && !fileLoading" class="empty-state" @drop.prevent="onDrop" @dragover.prevent>
             <div class="empty-icon-wrap">
-              <el-icon :size="48" color="#cbd5e1"><UploadFilled /></el-icon>
+              <el-icon :size="48" class="icon-muted"><UploadFilled /></el-icon>
             </div>
             <h2 class="empty-title">该日期暂无数据文件</h2>
             <p class="empty-desc">
@@ -177,10 +177,10 @@
             <template v-for="record in dataRecords" :key="record.id">
               <div v-for="file in record.files || []" :key="file.id" class="file-item">
                 <div class="file-icon clickable" @click="openDrawer(file)">
-                  <el-icon v-if="file.fileType === 'image'" :size="24" color="#10b981"><Picture /></el-icon>
-                  <el-icon v-else-if="file.fileType === 'pdf'" :size="24" color="#ef4444"><Document /></el-icon>
-                  <el-icon v-else-if="file.fileType === 'excel'" :size="24" color="#3b82f6"><Grid /></el-icon>
-                  <el-icon v-else :size="24" color="#94a3b8"><Document /></el-icon>
+                  <el-icon v-if="file.fileType === 'image'" :size="24" class="icon-success"><Picture /></el-icon>
+                  <el-icon v-else-if="file.fileType === 'pdf'" :size="24" class="icon-error"><Document /></el-icon>
+                  <el-icon v-else-if="file.fileType === 'excel'" :size="24" class="icon-info"><Grid /></el-icon>
+                  <el-icon v-else :size="24" class="icon-muted"><Document /></el-icon>
                 </div>
                 <div class="file-info">
                   <div class="file-name clickable" @click="openDrawer(file)">{{ file.fileName }}</div>
@@ -201,6 +201,7 @@
                   link type="primary" icon="View"
                   @click="openStructuredView(file)"
                 >查看</el-button>
+                <el-button link type="warning" :icon="Refresh" @click="handleReprocessFile(file)" title="重新处理" />
                 <el-button link type="danger" icon="Delete" @click="handleDeleteFile(file)" />
               </div>
             </template>
@@ -251,9 +252,9 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Picture, Document, Grid, UploadFilled, CirclePlus, Clock, Monitor,
-  Calendar, ArrowLeft, ArrowRight, InfoFilled
+  Calendar, ArrowLeft, ArrowRight, InfoFilled, Refresh
 } from '@element-plus/icons-vue'
-import { listCategories, listEquipData, getDataFiles, getDataDates, delDataFile, getFilesStatus } from '@/api/intellect/equipdata'
+import { listCategories, listEquipData, getDataFiles, getDataDates, delDataFile, getFilesStatus, reprocessFile } from '@/api/intellect/equipdata'
 import { getToken } from '@/utils/auth'
 import useEquipmentStore from '@/store/modules/equipment'
 
@@ -496,12 +497,17 @@ function beforeUpload(file) {
 
 function onUploadSuccess(res) {
   if (res.code === 200) {
-    ElMessage.success('上传成功，系统正在自动处理...')
+    const data = res.data
+    if (data?.remark) {
+      // 部分文件上传失败
+      ElMessage.warning(data.remark)
+    } else {
+      ElMessage.success('文件已接收，系统正在处理...')
+    }
     loadDataList()
     loadDataDates()
-    // Start polling for processing status
-    if (res.data?.id) {
-      startPolling(res.data.id)
+    if (data?.id) {
+      startPolling(data.id)
     }
   } else {
     ElMessage.error(res.msg || '上传失败')
@@ -509,6 +515,14 @@ function onUploadSuccess(res) {
 }
 
 function onUploadError() { ElMessage.error('上传失败') }
+
+function handleReprocessFile(file) {
+  reprocessFile(file.id).then(() => {
+    ElMessage.success('已重新提交处理，请稍候...')
+    startPolling(file.dataId || file.id)
+    loadDataList()
+  }).catch(() => ElMessage.error('重新处理失败'))
+}
 
 function handleDeleteFile(file) {
   proxy.$modal.confirm('确认删除文件 "' + file.fileName + '"？').then(() => delDataFile(file.id)).then(() => {
@@ -550,7 +564,7 @@ function startPolling(dataId) {
 }
 
 function openStructuredView(file) {
-  emit('open-structured-view', file)
+  emit('open-structured-view', { ...file, categoryId: activeCategory.value })
 }
 
 // --- File detail drawer ---
@@ -1168,9 +1182,9 @@ function stageLabel(status) {
   margin-bottom: 20px;
   h4 { font-size: 13px; font-weight: 600; color: var(--ds-on-surface); margin: 0 0 8px 0; }
 }
-.drawer-img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; }
-.drawer-pdf { width: 100%; height: 400px; border: none; border-radius: 8px; }
-.drawer-nopreview { color: #9ca3af; font-size: 13px; padding: 20px; text-align: center; }
+.drawer-img { width: 100%; border-radius: var(--ds-radius); box-shadow: var(--ds-shadow-sm); }
+.drawer-pdf { width: 100%; height: 400px; border: none; border-radius: var(--ds-radius); }
+.drawer-nopreview { color: var(--ds-outline); font-size: 13px; padding: 20px; text-align: center; }
 .drawer-status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
 .file-info { flex: 1; min-width: 0; }
 .file-name { font-size: 13px; color: var(--ds-on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1180,5 +1194,63 @@ function stageLabel(status) {
   gap: 4px;
   flex-shrink: 0;
   flex-wrap: wrap;
+}
+
+/* Utility classes for icon colors */
+.icon-primary { color: var(--ds-primary); }
+.icon-muted { color: var(--ds-outline-variant); }
+.icon-success { color: var(--ds-success); }
+.icon-error { color: var(--ds-error); }
+.icon-info { color: var(--ds-primary); }
+
+/* ===== Portrait 8-inch (800x1280) ===== */
+@media (max-width: 820px) and (orientation: portrait) {
+  .content-grid {
+    grid-template-columns: 1fr !important;
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .calendar-col {
+    order: -1; /* Keep calendar on top */
+  }
+
+  .calendar-card {
+    padding: 14px;
+  }
+
+  .calendar-days {
+    gap: 2px;
+  }
+
+  .calendar-day {
+    min-height: 36px;
+    font-size: 14px;
+  }
+
+  .action-btns {
+    flex-wrap: wrap;
+  }
+
+  .btn-import-primary,
+  .btn-import-secondary {
+    font-size: 14px;
+    padding: 10px 16px;
+    min-height: 44px;
+  }
+
+  .data-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .data-tab {
+    font-size: 14px;
+    min-height: 44px;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
 }
 </style>

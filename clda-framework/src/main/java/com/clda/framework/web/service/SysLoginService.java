@@ -32,7 +32,7 @@ import com.clda.system.service.ISysUserService;
 /**
  * 登录校验方法
  * 
- * @author ruoyi
+ * @author clda
  */
 @Component
 public class SysLoginService

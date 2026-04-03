@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 数据分类对象 tb_data_category
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @TableName("tb_data_category")

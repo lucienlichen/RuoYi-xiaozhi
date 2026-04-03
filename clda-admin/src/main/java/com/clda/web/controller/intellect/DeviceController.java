@@ -24,7 +24,7 @@ import com.clda.common.core.page.TableDataInfo;
 /**
  * 设备管理Controller
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @RestController
 @RequiredArgsConstructor

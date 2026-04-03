@@ -69,7 +69,7 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/app',
+    path: '/business',
     component: AppLayout,
     hidden: true
   },
@@ -84,20 +84,25 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '',
+    path: '/',
+    redirect: '/business',
+    hidden: true
+  },
+  {
+    path: '/admin',
     component: Layout,
-    redirect: '/index',
+    redirect: '/admin/dashboard',
     children: [
       {
-        path: '/index',
-        component: () => import('@/views/index'),
-        name: 'Index',
+        path: 'dashboard',
+        component: () => import('@/views/admin/dashboard/index'),
+        name: 'AdminDashboard',
         meta: { title: '首页', icon: 'dashboard', affix: true }
       }
     ]
   },
   {
-    path: '/user',
+    path: '/admin/user',
     component: Layout,
     hidden: true,
     redirect: 'noredirect',
@@ -115,7 +120,7 @@ export const constantRoutes = [
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
   {
-    path: '/system/user-auth',
+    path: '/admin/system/user-auth',
     component: Layout,
     hidden: true,
     permissions: ['system:user:edit'],
@@ -124,12 +129,12 @@ export const dynamicRoutes = [
         path: 'role/:userId(\\d+)',
         component: () => import('@/views/system/user/authRole'),
         name: 'AuthRole',
-        meta: { title: '分配角色', activeMenu: '/system/user' }
+        meta: { title: '分配角色', activeMenu: '/admin/system/user' }
       }
     ]
   },
   {
-    path: '/system/role-auth',
+    path: '/admin/system/role-auth',
     component: Layout,
     hidden: true,
     permissions: ['system:role:edit'],
@@ -138,12 +143,12 @@ export const dynamicRoutes = [
         path: 'user/:roleId(\\d+)',
         component: () => import('@/views/system/role/authUser'),
         name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/system/role' }
+        meta: { title: '分配用户', activeMenu: '/admin/system/role' }
       }
     ]
   },
   {
-    path: '/system/dict-data',
+    path: '/admin/system/dict-data',
     component: Layout,
     hidden: true,
     permissions: ['system:dict:list'],
@@ -152,12 +157,12 @@ export const dynamicRoutes = [
         path: 'index/:dictId(\\d+)',
         component: () => import('@/views/system/dict/data'),
         name: 'Data',
-        meta: { title: '字典数据', activeMenu: '/system/dict' }
+        meta: { title: '字典数据', activeMenu: '/admin/system/dict' }
       }
     ]
   },
   {
-    path: '/monitor/job-log',
+    path: '/admin/monitor/job-log',
     component: Layout,
     hidden: true,
     permissions: ['monitor:job:list'],
@@ -166,12 +171,12 @@ export const dynamicRoutes = [
         path: 'index/:jobId(\\d+)',
         component: () => import('@/views/monitor/job/log'),
         name: 'JobLog',
-        meta: { title: '调度日志', activeMenu: '/monitor/job' }
+        meta: { title: '调度日志', activeMenu: '/admin/monitor/job' }
       }
     ]
   },
   {
-    path: '/tool/gen-edit',
+    path: '/admin/tool/gen-edit',
     component: Layout,
     hidden: true,
     permissions: ['tool:gen:edit'],
@@ -180,7 +185,7 @@ export const dynamicRoutes = [
         path: 'index/:tableId(\\d+)',
         component: () => import('@/views/tool/gen/editTable'),
         name: 'GenEdit',
-        meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
+        meta: { title: '修改生成配置', activeMenu: '/admin/tool/gen' }
       }
     ]
   }

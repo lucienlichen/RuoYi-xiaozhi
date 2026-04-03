@@ -158,10 +158,10 @@ INSERT INTO `sys_role_menu` VALUES (2, 2154);
 INSERT INTO `sys_role_menu` VALUES (2, 2155);
 ```
 
-- [ ] **Step 2: Execute SQL against the ry-xiaozhi database**
+- [ ] **Step 2: Execute SQL against the clda database**
 
 ```bash
-mysql -u root -p ry-xiaozhi < sql/knowledge-regulations-init.sql
+mysql -u root -p clda < sql/knowledge-regulations-init.sql
 ```
 Expected: No errors. Three new tables created, 11 menu entries inserted.
 

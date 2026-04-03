@@ -19,7 +19,7 @@ import com.clda.intellect.service.IEquipmentService;
 /**
  * 起重设备Controller
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @RestController
 @RequiredArgsConstructor

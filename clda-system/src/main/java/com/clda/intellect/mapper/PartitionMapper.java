@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 设备分区Mapper接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface PartitionMapper extends CommonMapper<Partition> {
 

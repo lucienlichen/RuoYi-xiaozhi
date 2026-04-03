@@ -7,7 +7,7 @@ import com.clda.common.utils.spring.SpringUtils;
 /**
  * 获取i18n资源文件
  * 
- * @author ruoyi
+ * @author clda
  */
 public class MessageUtils
 {

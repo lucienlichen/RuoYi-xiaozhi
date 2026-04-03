@@ -22,7 +22,7 @@ import com.clda.system.service.ISysOperLogService;
 /**
  * 操作日志记录
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestController
 @RequestMapping("/monitor/operlog")

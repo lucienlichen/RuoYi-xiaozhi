@@ -7,12 +7,12 @@
 
     <!-- 问题处理AI助手 -->
     <div v-else-if="currentService === 'typical_issue_ai'" class="service-panel">
-      <PlaceholderView title="问题处理AI助手" desc="基于已上传数据，对设备故障、维修等问题进行智能处理建议与闭环跟踪。" color="#6366F1" status="规划中" />
+      <HazardSourceView />
     </div>
 
     <!-- 隐患排查AI助手 -->
     <div v-else-if="currentService === 'hazard_check'" class="service-panel">
-      <PlaceholderView title="隐患排查AI助手" desc="依据国家特种设备安全法规，对起重机进行64项专项隐患排查。" color="#F59E0B" status="即将上线" />
+      <InspectionView />
     </div>
 
     <!-- 风险服务AI助手 -->
@@ -48,14 +48,18 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
-import EquipDataView from '@/views/intellect/equipdata/index.vue'
-import PartitionView from '@/views/intellect/partition/index.vue'
-import EquipmentView from '@/views/intellect/equipment/index.vue'
 import PlaceholderView from './components/PlaceholderView.vue'
-import KnowledgeView from '@/views/intellect/knowledge/index.vue'
-import RegulationsView from '@/views/intellect/regulations/index.vue'
+
+// 按需加载业务视图
+const EquipDataView = defineAsyncComponent(() => import('@/views/intellect/equipdata/index.vue'))
+const PartitionView = defineAsyncComponent(() => import('@/views/intellect/partition/index.vue'))
+const EquipmentView = defineAsyncComponent(() => import('@/views/intellect/equipment/index.vue'))
+const KnowledgeView = defineAsyncComponent(() => import('@/views/intellect/knowledge/index.vue'))
+const RegulationsView = defineAsyncComponent(() => import('@/views/intellect/regulations/index.vue'))
+const HazardSourceView = defineAsyncComponent(() => import('@/views/intellect/hazard-source/index.vue'))
+const InspectionView = defineAsyncComponent(() => import('@/views/intellect/inspection/index.vue'))
 
 const route = useRoute()
 const currentService = computed(() => route.query.service || '')

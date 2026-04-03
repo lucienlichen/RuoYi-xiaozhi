@@ -18,7 +18,7 @@ import com.clda.quartz.service.ISysJobLogService;
 /**
  * 抽象quartz调用
  *
- * @author ruoyi
+ * @author clda
  */
 public abstract class AbstractQuartzJob implements Job
 {

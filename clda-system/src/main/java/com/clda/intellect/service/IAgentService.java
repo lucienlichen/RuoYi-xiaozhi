@@ -6,7 +6,7 @@ import com.clda.intellect.domain.Agent;
 /**
  * 智能体Service接口
  * 
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface IAgentService {
     /**

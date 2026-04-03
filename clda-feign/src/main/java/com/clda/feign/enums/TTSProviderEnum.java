@@ -2,7 +2,7 @@ package com.clda.feign.enums;
 
 /**
  * 语音合成服务提供商枚举
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public enum TTSProviderEnum {
 

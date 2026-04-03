@@ -4,8 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.clda.common.config.CldaConfig;
-import com.clda.common.utils.file.FileUploadUtils;
+import com.clda.common.utils.minio.MinioService;
 import com.clda.intellect.domain.DataFile;
 import com.clda.intellect.domain.EquipmentData;
 import com.clda.intellect.mapper.DataFileMapper;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * 设备数据采集Service业务层处理
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 @Service
@@ -33,6 +32,7 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
     private final EquipmentDataMapper equipmentDataMapper;
     private final DataFileMapper dataFileMapper;
     private final IDataProcessingService dataProcessingService;
+    private final MinioService minioService;
 
     @Override
     public List<EquipmentData> selectList(Long equipmentId, Long categoryId, Date dataDate) {
@@ -46,7 +46,7 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
 
     @Override
     public EquipmentData uploadFiles(Long equipmentId, Long categoryId, Long subCategoryId, Date dataDate, MultipartFile[] files, String operName) {
-        // 创建或获取当天的数据记录
+        // 创建数据记录
         EquipmentData data = new EquipmentData();
         data.setEquipmentId(equipmentId);
         data.setCategoryId(categoryId);
@@ -56,11 +56,13 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
         data.setCreateBy(operName);
         equipmentDataMapper.insert(data);
 
-        // 上传并保存文件
-        String uploadPath = CldaConfig.getUploadPath() + "/crane/" + equipmentId;
+        // 上传并保存文件，追踪成功/失败
+        int successCount = 0;
+        List<String> failedNames = new ArrayList<>();
         for (MultipartFile file : files) {
             try {
-                String filePath = FileUploadUtils.upload(uploadPath, file);
+                String objectKey = minioService.upload(file, "upload/crane/" + equipmentId);
+                String filePath = "/minio/" + objectKey;
                 DataFile dataFile = new DataFile();
                 dataFile.setDataId(data.getId());
                 dataFile.setFileName(file.getOriginalFilename());
@@ -75,13 +77,26 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
 
                 // 触发异步处理流水线
                 dataProcessingService.processFileAsync(dataFile.getId());
+                successCount++;
             } catch (Exception e) {
                 log.error("文件上传失败: {}", file.getOriginalFilename(), e);
+                failedNames.add(file.getOriginalFilename());
             }
         }
 
-        // 更新状态为处理中
+        // 根据实际结果设置状态
+        if (successCount == 0) {
+            data.setStatus("FAILED");
+            data.setRemark("全部文件上传失败: " + String.join(", ", failedNames));
+            equipmentDataMapper.updateById(data);
+            throw new com.clda.common.exception.ServiceException(
+                    "文件上传失败: " + String.join(", ", failedNames));
+        }
+
         data.setStatus("PROCESSING");
+        if (!failedNames.isEmpty()) {
+            data.setRemark(successCount + " 个文件上传成功，" + failedNames.size() + " 个失败: " + String.join(", ", failedNames));
+        }
         equipmentDataMapper.updateById(data);
         return data;
     }
@@ -94,9 +109,9 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
     @Override
     public int deleteByIds(Long[] ids) {
         for (Long id : ids) {
-            // 先删关联文件
             List<DataFile> files = dataFileMapper.selectByDataId(id);
             for (DataFile f : files) {
+                deleteMinioObjects(f);
                 dataFileMapper.deleteById(f.getId());
             }
         }
@@ -105,7 +120,30 @@ public class EquipmentDataServiceImpl implements IEquipmentDataService {
 
     @Override
     public int deleteFile(Long fileId) {
+        DataFile file = dataFileMapper.selectById(fileId);
+        if (file != null) {
+            deleteMinioObjects(file);
+        }
         return dataFileMapper.deleteById(fileId);
+    }
+
+    /**
+     * 删除 MinIO 中的源文件和中间产物（预处理图、增强图）
+     */
+    private void deleteMinioObjects(DataFile file) {
+        deleteMinioKey(file.getFilePath());
+        deleteMinioKey(file.getPreprocessedPath());
+        deleteMinioKey(file.getEnhancedPath());
+    }
+
+    private void deleteMinioKey(String path) {
+        if (path != null && path.startsWith("/minio/")) {
+            try {
+                minioService.delete(path.substring("/minio/".length()));
+            } catch (Exception e) {
+                log.warn("MinIO 对象删除失败: {}", path, e);
+            }
+        }
     }
 
     @Override

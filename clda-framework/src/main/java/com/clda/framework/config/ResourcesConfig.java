@@ -1,7 +1,10 @@
 package com.clda.framework.config;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
@@ -18,13 +21,20 @@ import com.clda.framework.interceptor.RepeatSubmitInterceptor;
 /**
  * 通用配置
  * 
- * @author ruoyi
+ * @author clda
  */
 @Configuration
 public class ResourcesConfig implements WebMvcConfigurer
 {
     @Autowired
     private RepeatSubmitInterceptor repeatSubmitInterceptor;
+
+    /**
+     * 允许跨域访问的源地址，多个用逗号分隔，默认允许所有（开发环境）
+     * 生产环境应设置为具体域名，如: CORS_ALLOWED_ORIGINS=https://clda.example.com
+     */
+    @Value("${cors.allowed-origins:*}")
+    private String allowedOrigins;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry)
@@ -55,18 +65,21 @@ public class ResourcesConfig implements WebMvcConfigurer
     public CorsFilter corsFilter()
     {
         CorsConfiguration config = new CorsConfiguration();
-        // 设置访问源地址
-        config.addAllowedOriginPattern("*");
-        // 设置访问源请求头
+        if ("*".equals(allowedOrigins))
+        {
+            config.addAllowedOriginPattern("*");
+        }
+        else
+        {
+            List<String> origins = Arrays.asList(allowedOrigins.split(","));
+            origins.forEach(origin -> config.addAllowedOriginPattern(origin.trim()));
+        }
         config.addAllowedHeader("*");
-        // 设置访问源请求方法
         config.addAllowedMethod("*");
-        // 有效期 1800秒
+        config.setAllowCredentials(true);
         config.setMaxAge(1800L);
-        // 添加映射路径，拦截一切请求
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        // 返回新的CorsFilter
         return new CorsFilter(source);
     }
 }

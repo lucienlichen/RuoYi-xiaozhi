@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, defineAsyncComponent, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Close } from '@element-plus/icons-vue'
 import AppNavbar from './components/AppNavbar.vue'
@@ -83,15 +83,17 @@ import EquipmentSidebar from './components/EquipmentSidebar.vue'
 import AppContent from './components/AppContent.vue'
 import VoiceChatPanel from '@/components/VoiceChatPanel/index.vue'
 import PlaceholderView from '@/views/robot/components/PlaceholderView.vue'
-import KnowledgeView from '@/views/intellect/knowledge/index.vue'
-import RegulationsView from '@/views/intellect/regulations/index.vue'
-import HazardSourceView from '@/views/intellect/hazard-source/index.vue'
-import InspectionView from '@/views/intellect/inspection/index.vue'
-import DataServicePanel from '@/views/intellect/components/DataServicePanel.vue'
 import { aiAssistants } from '@/config/aiAssistants'
 import useUserStore from '@/store/modules/user'
 import useEquipmentStore from '@/store/modules/equipment'
 import { useVoiceChat } from '@/composables/useVoiceChat'
+
+// 按需加载业务视图，避免全部打进壳层 chunk
+const KnowledgeView = defineAsyncComponent(() => import('@/views/intellect/knowledge/index.vue'))
+const RegulationsView = defineAsyncComponent(() => import('@/views/intellect/regulations/index.vue'))
+const HazardSourceView = defineAsyncComponent(() => import('@/views/intellect/hazard-source/index.vue'))
+const InspectionView = defineAsyncComponent(() => import('@/views/intellect/inspection/index.vue'))
+const DataServicePanel = defineAsyncComponent(() => import('@/views/intellect/components/DataServicePanel.vue'))
 
 const router = useRouter()
 const route = useRoute()
@@ -120,6 +122,7 @@ function toggleAssistant(service) {
 
 function closeAssistant() {
   activeServiceId.value = null
+  pendingStructuredFile.value = null
 }
 
 // Watch for assistant query param to auto-open panel
@@ -134,13 +137,13 @@ onMounted(() => {
     if (service === 'menu') {
       router.replace('/robot/menu')
     } else if (service === 'data_import') {
-      router.replace('/app')
+      router.replace('/business')
     } else {
       const isAssistant = aiAssistants.some(a => a.service === service)
       if (isAssistant) {
         activeServiceId.value = service
       } else {
-        router.replace({ path: '/app', query: { service } })
+        router.replace({ path: '/business', query: { service } })
       }
     }
   })
@@ -189,7 +192,9 @@ onMounted(() => {
 }
 
 .ai-panel {
-  background: var(--ds-surface-container-lowest);
+  background: var(--ds-glass-bg);
+  backdrop-filter: blur(var(--ds-glass-blur));
+  border: 1px solid var(--ds-glass-border);
   border-radius: var(--ds-radius-lg) var(--ds-radius-lg) 0 0;
   box-shadow: var(--ds-shadow-xl);
   height: 100%;

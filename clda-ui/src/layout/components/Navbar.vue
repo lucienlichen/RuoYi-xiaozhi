@@ -29,7 +29,7 @@
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <router-link to="/user/profile">
+            <router-link to="/admin/user/profile">
               <el-dropdown-item>个人中心</el-dropdown-item>
             </router-link>
             <el-dropdown-item divided command="logout">
@@ -85,7 +85,7 @@ function logout() {
     type: 'warning'
   }).then(() => {
     userStore.logOut().then(() => {
-      location.href = '/index'
+      location.href = '/'
     })
   }).catch(() => { })
 }
@@ -102,14 +102,14 @@ function toggleTheme() {
 
 <style lang='scss' scoped>
 .navbar {
-  height: 50px;
+  height: 56px;
   overflow: hidden;
   position: relative;
-  background: var(--navbar-bg);
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  background: var(--ds-surface-container-lowest);
+  box-shadow: var(--ds-shadow-sm);
 
   .hamburger-container {
-    line-height: 46px;
+    line-height: 52px;
     height: 100%;
     float: left;
     cursor: pointer;
@@ -117,7 +117,7 @@ function toggleTheme() {
     -webkit-tap-highlight-color: transparent;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.025);
+      background: var(--ds-surface-container-low);
     }
   }
 
@@ -138,7 +138,7 @@ function toggleTheme() {
   .right-menu {
     float: right;
     height: 100%;
-    line-height: 50px;
+    line-height: 56px;
     display: flex;
 
     &:focus {
@@ -150,7 +150,7 @@ function toggleTheme() {
       padding: 0 8px;
       height: 100%;
       font-size: 18px;
-      color: #5a5e66;
+      color: var(--ds-on-surface-variant);
       vertical-align: text-bottom;
 
       &.hover-effect {
@@ -158,7 +158,7 @@ function toggleTheme() {
         transition: background 0.3s;
 
         &:hover {
-          background: rgba(0, 0, 0, 0.025);
+          background: var(--ds-surface-container-low);
         }
       }
 

@@ -3,7 +3,7 @@ package com.clda.common.exception;
 /**
  * 全局异常
  * 
- * @author ruoyi
+ * @author clda
  */
 public class GlobalException extends RuntimeException
 {

@@ -117,8 +117,8 @@ git clone https://github.com/78/xiaozhi-server.git
 
 ### 3、创建数据库
 
-- 创建名为 ry-xiaozhi 的 MySQL 数据库；
-- 执行初始化 SQL 脚本：sql/ry-xiaozhi-20250615.sql
+- 创建名为 clda 的 MySQL 数据库；
+- 执行初始化 SQL 脚本：sql/clda-20250615.sql
 
 ### 4、配置数据库连接
 
@@ -134,7 +134,7 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://localhost:3306/ry-xiaozhi?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                url: jdbc:mysql://localhost:3306/clda?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
                 username: root
                 password: password
 ```

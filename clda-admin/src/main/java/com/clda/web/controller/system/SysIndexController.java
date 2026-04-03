@@ -9,7 +9,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * 首页
  *
- * @author ruoyi
+ * @author clda
  */
 @RestController
 public class SysIndexController

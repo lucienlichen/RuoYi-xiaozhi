@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * 音频处理事件对象，用于TTS处理过程中的状态通知和数据传递
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 public class AudioEvent {

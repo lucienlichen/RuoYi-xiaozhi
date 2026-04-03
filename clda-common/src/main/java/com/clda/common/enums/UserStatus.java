@@ -3,7 +3,7 @@ package com.clda.common.enums;
 /**
  * 用户状态
  * 
- * @author ruoyi
+ * @author clda
  */
 public enum UserStatus
 {

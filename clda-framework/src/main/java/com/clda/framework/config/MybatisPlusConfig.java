@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 /**
  * Mybatis Plus 配置
  *
- * @author ruoyi
+ * @author clda
  */
 @EnableTransactionManagement(proxyTargetClass = true)
 @Configuration

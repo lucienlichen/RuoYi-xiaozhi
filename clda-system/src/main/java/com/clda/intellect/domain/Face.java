@@ -11,7 +11,7 @@ import com.clda.common.core.domain.BaseEntity;
 /**
  * 人脸识别对象 tb_face
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @TableName("tb_face")

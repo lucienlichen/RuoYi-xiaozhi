@@ -22,7 +22,7 @@ import com.clda.common.utils.html.EscapeUtil;
 /**
  * 全局异常处理器
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler

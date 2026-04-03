@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * 起重设备Service业务层处理
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Service
 @RequiredArgsConstructor

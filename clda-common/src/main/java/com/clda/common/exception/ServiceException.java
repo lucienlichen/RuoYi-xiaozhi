@@ -3,7 +3,7 @@ package com.clda.common.exception;
 /**
  * 业务异常
  * 
- * @author ruoyi
+ * @author clda
  */
 public final class ServiceException extends RuntimeException
 {

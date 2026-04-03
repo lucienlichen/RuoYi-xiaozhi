@@ -9,6 +9,7 @@ import {
 export const aiAssistants = [
   {
     name: '数据服务AI助手',
+    shortName: '数据服务',
     service: 'data_service_ai',
     description: '查看各类数据结构化处理结果',
     icon: DataAnalysis,
@@ -18,6 +19,7 @@ export const aiAssistants = [
   },
   {
     name: '问题处理AI助手',
+    shortName: '问题处理',
     service: 'typical_issue_ai',
     description: '设备问题处理与记录跟踪',
     icon: ChatLineSquare,
@@ -27,6 +29,7 @@ export const aiAssistants = [
   },
   {
     name: '隐患排查AI助手',
+    shortName: '隐患排查',
     service: 'hazard_check',
     description: '66项隐患排查表生成与管理',
     icon: Warning,
@@ -36,6 +39,7 @@ export const aiAssistants = [
   },
   {
     name: '风险服务AI助手',
+    shortName: '风险服务',
     service: 'risk_service_ai',
     description: '设备风险动态评估与监控',
     icon: Odometer,
@@ -45,6 +49,7 @@ export const aiAssistants = [
   },
   {
     name: '前沿知识AI助手',
+    shortName: '前沿知识',
     service: 'safety_maintenance_ai',
     description: '安全维保知识检索与问答',
     icon: Reading,
@@ -54,6 +59,7 @@ export const aiAssistants = [
   },
   {
     name: '法规标准AI助手',
+    shortName: '法规标准',
     service: 'regulations_ai',
     description: '法律法规与技术规范知识库',
     icon: Document,

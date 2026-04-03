@@ -15,6 +15,9 @@
       </div>
     </div>
     <div class="navbar-right">
+      <button class="nav-icon-btn" @click="toggleDark()" :title="isDark ? '切换亮色模式' : '切换暗色模式'">
+        <el-icon><component :is="isDark ? Sunny : Moon" /></el-icon>
+      </button>
       <button class="nav-icon-btn" @click="goAdmin" v-if="hasAdminMenu" title="管理后台">
         <el-icon><Setting /></el-icon>
       </button>
@@ -39,7 +42,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { Setting, Search, ArrowDown } from '@element-plus/icons-vue'
+import { Setting, Search, ArrowDown, Sunny, Moon } from '@element-plus/icons-vue'
+import { useDark, useToggle } from '@vueuse/core'
 import useUserStore from '@/store/modules/user'
 import usePermissionStore from '@/store/modules/permission'
 import useEquipmentStore from '@/store/modules/equipment'
@@ -49,6 +53,9 @@ const router = useRouter()
 const userStore = useUserStore()
 const permissionStore = usePermissionStore()
 const equipmentStore = useEquipmentStore()
+
+const isDark = useDark()
+const toggleDark = useToggle(isDark)
 
 const searchKeyword = ref('')
 const nickName = computed(() => userStore.nickName || userStore.name || '用户')
@@ -60,7 +67,7 @@ function onSearch() {
 }
 
 function goAdmin() {
-  router.push('/index')
+  router.push('/admin')
 }
 
 function handleCommand(command) {
@@ -69,7 +76,7 @@ function handleCommand(command) {
       userStore.logOut().then(() => router.push('/login'))
     }).catch(() => {})
   } else if (command === 'profile') {
-    router.push('/user/profile')
+    router.push('/admin/user/profile')
   }
 }
 </script>

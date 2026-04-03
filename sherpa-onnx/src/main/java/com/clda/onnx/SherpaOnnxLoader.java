@@ -16,7 +16,7 @@ import java.util.Optional;
  * 会从 resources 中提取库文件到临时目录，然后调用 System.load 加载
  * 若临时目录已存在，则直接复用并覆盖目标文件
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 public class SherpaOnnxLoader {

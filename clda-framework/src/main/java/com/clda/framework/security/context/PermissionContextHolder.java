@@ -7,7 +7,7 @@ import com.clda.common.core.text.Convert;
 /**
  * 权限信息
  * 
- * @author ruoyi
+ * @author clda
  */
 public class PermissionContextHolder
 {

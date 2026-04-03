@@ -5,7 +5,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * 字符串格式化
  * 
- * @author ruoyi
+ * @author clda
  */
 public class StrFormatter
 {

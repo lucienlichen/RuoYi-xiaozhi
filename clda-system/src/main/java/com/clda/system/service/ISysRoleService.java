@@ -8,7 +8,7 @@ import com.clda.system.domain.SysUserRole;
 /**
  * 角色业务层
  * 
- * @author ruoyi
+ * @author clda
  */
 public interface ISysRoleService
 {

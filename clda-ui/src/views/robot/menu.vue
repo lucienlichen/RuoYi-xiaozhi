@@ -103,7 +103,7 @@ function navigateTo(service) {
 }
 
 function navigateToDataImport() {
-  router.push('/app')
+  router.push('/business')
 }
 
 const { disconnect: disconnectVoice } = useVoiceChat()
@@ -287,6 +287,7 @@ async function handleLogout() {
 
   .robot-menu__grid {
     grid-template-columns: 1fr;
+    gap: var(--ds-space-3);
   }
 
   .ai-card {
@@ -294,12 +295,22 @@ async function handleLogout() {
     align-items: center;
     padding: 20px 16px;
     gap: 16px;
+    min-height: 80px;
+
+    &:active {
+      transform: scale(0.97);
+    }
   }
 
   .ai-card__icon {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     flex-shrink: 0;
+  }
+
+  .ai-card__content {
+    h3 { font-size: 17px; }
+    p { font-size: 14px; }
   }
 
   .ai-card__arrow {
@@ -308,12 +319,27 @@ async function handleLogout() {
   }
 
   .welcome-text {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .welcome-area {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .ai-card.ai-card--wide {
+    min-height: 64px;
+    padding: 16px;
+
+    .ai-card__icon {
+      width: 44px;
+      height: 44px;
+    }
+
+    .ai-card__content {
+      h3 { font-size: 16px; }
+      p { font-size: 13px; }
+    }
   }
 }
 

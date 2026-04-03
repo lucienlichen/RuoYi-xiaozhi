@@ -23,7 +23,7 @@ import com.clda.system.service.ISysLogininforService;
 /**
  * 系统访问记录
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestController
 @RequestMapping("/monitor/logininfor")

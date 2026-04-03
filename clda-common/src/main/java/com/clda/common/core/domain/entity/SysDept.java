@@ -13,7 +13,7 @@ import com.clda.common.core.domain.BaseEntity;
 /**
  * 部门表 sys_dept
  * 
- * @author ruoyi
+ * @author clda
  */
 public class SysDept extends BaseEntity
 {

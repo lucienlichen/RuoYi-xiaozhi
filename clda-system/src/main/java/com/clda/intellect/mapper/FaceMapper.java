@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 人脸识别Mapper接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface FaceMapper extends CommonMapper<Face> {
 

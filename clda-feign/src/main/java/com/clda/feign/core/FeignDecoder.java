@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 
 /**
  * 自定义feign解码器（统一解析响应）
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 @RequiredArgsConstructor

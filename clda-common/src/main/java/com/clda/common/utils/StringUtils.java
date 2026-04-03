@@ -13,7 +13,7 @@ import com.clda.common.core.text.StrFormatter;
 /**
  * 字符串工具类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils
 {

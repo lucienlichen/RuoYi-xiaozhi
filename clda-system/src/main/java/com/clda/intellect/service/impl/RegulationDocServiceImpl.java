@@ -1,7 +1,6 @@
 package com.clda.intellect.service.impl;
 
-import com.clda.common.config.CldaConfig;
-import com.clda.common.utils.file.FileUploadUtils;
+import com.clda.common.utils.minio.MinioService;
 import com.clda.intellect.domain.RegulationDoc;
 import com.clda.intellect.mapper.RegulationDocMapper;
 import com.clda.intellect.service.IRegulationDocService;
@@ -18,6 +17,7 @@ import java.util.List;
 public class RegulationDocServiceImpl implements IRegulationDocService {
 
     private final RegulationDocMapper docMapper;
+    private final MinioService minioService;
 
     @Override
     public List<RegulationDoc> selectDocList(RegulationDoc query) {
@@ -32,8 +32,8 @@ public class RegulationDocServiceImpl implements IRegulationDocService {
     @Override
     public RegulationDoc uploadAndParse(MultipartFile file, String title, String category,
                                          String docNo, String publishDate, String operName) throws Exception {
-        String uploadPath = CldaConfig.getUploadPath() + "/regulations";
-        String filePath = FileUploadUtils.upload(uploadPath, file);
+        String objectKey = minioService.upload(file, "upload/regulations");
+        String filePath = "/minio/" + objectKey;
 
         RegulationDoc doc = new RegulationDoc();
         doc.setTitle(title);

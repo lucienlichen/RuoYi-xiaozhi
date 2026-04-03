@@ -16,7 +16,7 @@ import com.clda.framework.security.context.AuthenticationContextHolder;
 /**
  * 登录密码方法
  * 
- * @author ruoyi
+ * @author clda
  */
 @Component
 public class SysPasswordService

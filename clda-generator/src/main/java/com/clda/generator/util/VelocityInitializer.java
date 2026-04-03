@@ -7,7 +7,7 @@ import com.clda.common.constant.Constants;
 /**
  * VelocityEngine工厂
  * 
- * @author ruoyi
+ * @author clda
  */
 public class VelocityInitializer
 {

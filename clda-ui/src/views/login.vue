@@ -200,7 +200,7 @@ function handleLogin() {
           }
           return acc
         }, {})
-        router.push({ path: redirect.value || "/app", query: otherQueryParams })
+        router.push({ path: redirect.value || "/business", query: otherQueryParams })
       }).catch(() => {
         loading.value = false
         if (captchaEnabled.value) {

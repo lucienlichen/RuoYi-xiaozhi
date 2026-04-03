@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 /**
  * edgeTTS 语音合成
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 public class EdgeTTSProvider extends BaseTTSProvider {

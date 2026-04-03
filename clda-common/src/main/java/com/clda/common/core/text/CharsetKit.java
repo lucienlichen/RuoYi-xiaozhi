@@ -7,7 +7,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * 字符集工具类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class CharsetKit
 {

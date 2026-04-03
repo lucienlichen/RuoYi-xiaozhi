@@ -9,9 +9,11 @@
 </template>
 
 <script setup>
-import EquipDataView from '@/views/intellect/equipdata/index.vue'
-import PartitionView from '@/views/intellect/partition/index.vue'
-import EquipmentView from '@/views/intellect/equipment/index.vue'
+import { defineAsyncComponent } from 'vue'
+
+const EquipDataView = defineAsyncComponent(() => import('@/views/intellect/equipdata/index.vue'))
+const PartitionView = defineAsyncComponent(() => import('@/views/intellect/partition/index.vue'))
+const EquipmentView = defineAsyncComponent(() => import('@/views/intellect/equipment/index.vue'))
 
 defineProps({
   currentService: { type: String, default: '' }

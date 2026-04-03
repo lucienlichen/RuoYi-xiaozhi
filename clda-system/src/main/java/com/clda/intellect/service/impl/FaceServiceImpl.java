@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * 人脸识别Service业务层处理
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Service
 @RequiredArgsConstructor

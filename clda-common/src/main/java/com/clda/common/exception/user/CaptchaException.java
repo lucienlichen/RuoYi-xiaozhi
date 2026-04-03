@@ -3,7 +3,7 @@ package com.clda.common.exception.user;
 /**
  * 验证码错误异常类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class CaptchaException extends UserException
 {

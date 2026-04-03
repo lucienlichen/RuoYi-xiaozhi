@@ -196,7 +196,7 @@ onMounted(() => {
     if (service === 'menu') {
       router.replace('/robot/menu')
     } else if (service === 'data_import') {
-      router.replace('/app')
+      router.replace('/business')
     } else {
       router.replace({ path: '/robot/app', query: { service } })
     }
@@ -289,7 +289,7 @@ onMounted(() => {
   height: 52px;
   border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.15);
-  background: #1a1a2e;
+  background: var(--ds-surface-container-low);
   color: rgba(255,255,255,0.5);
   cursor: pointer;
   display: flex;
@@ -316,8 +316,8 @@ onMounted(() => {
   }
 
   &.playing {
-    border-color: #409EFF;
-    color: #409EFF;
+    border-color: var(--ds-primary);
+    color: var(--ds-primary);
   }
 
   .fab-dot {
@@ -328,7 +328,7 @@ onMounted(() => {
     height: 10px;
     border-radius: 50%;
     background: #00e4a0;
-    border: 2px solid #1a1a2e;
+    border: 2px solid var(--ds-surface-container-low);
   }
 
   @media (max-width: 820px) and (orientation: portrait) {
@@ -352,7 +352,7 @@ onMounted(() => {
   z-index: 999;
   display: flex;
   flex-direction: column;
-  background: #1a1a2e;
+  background: var(--ds-surface-container-low);
   border-radius: 16px 16px 0 0;
   overflow: hidden;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
@@ -554,8 +554,8 @@ onMounted(() => {
   }
 
   &.playing {
-    border-color: #409EFF;
-    color: #409EFF;
+    border-color: var(--ds-primary);
+    color: var(--ds-primary);
     opacity: 0.6;
   }
 
@@ -574,5 +574,97 @@ onMounted(() => {
   font-size: 11px;
   color: rgba(255, 255, 255, 0.3);
   letter-spacing: 0.5px;
+}
+
+// ── Portrait (8-inch robot screen) overrides ──
+@media (max-width: 820px) and (orientation: portrait) {
+  .voice-fab {
+    width: 64px;
+    height: 64px;
+    bottom: 20px;
+    right: 20px;
+
+    svg { width: 28px; height: 28px; }
+
+    .fab-dot {
+      width: 12px;
+      height: 12px;
+      top: 4px;
+      right: 4px;
+    }
+  }
+
+  .voice-panel {
+    height: 60vh;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+  }
+
+  .conn-text {
+    font-size: 14px;
+  }
+
+  .mode-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    min-height: 36px;
+  }
+
+  .close-btn {
+    padding: 8px;
+    svg { width: 20px; height: 20px; }
+  }
+
+  .panel-messages {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .chat-msg {
+    font-size: 16px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    max-width: 90%;
+
+    &.system { font-size: 13px; }
+  }
+
+  .chat-empty {
+    font-size: 15px;
+  }
+
+  .panel-controls {
+    padding: 16px;
+    gap: 8px;
+  }
+
+  .mic-button {
+    width: 80px;
+    height: 80px;
+
+    svg { width: 36px; height: 36px; }
+
+    &.active::after {
+      inset: -10px;
+    }
+  }
+
+  .mic-hint {
+    font-size: 14px;
+  }
+
+  .voice-bubble-center {
+    font-size: 18px;
+    padding: 18px 24px;
+    border-radius: 24px;
+    max-width: 88%;
+    bottom: 110px;
+  }
+
+  .bubble-label {
+    font-size: 12px;
+  }
 }
 </style>

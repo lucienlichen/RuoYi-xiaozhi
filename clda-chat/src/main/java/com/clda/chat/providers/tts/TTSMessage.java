@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * 文本转语音(TTS)处理消息
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 public class TTSMessage {

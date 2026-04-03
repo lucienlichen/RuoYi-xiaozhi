@@ -1,32 +1,31 @@
 spring:
   main:
     web-application-type: none
+
 # 小智聊天服务配置
 chat:
   server:
-    port: 8082
+    port: ${CHAT_SERVER_PORT:8082}
     context-path: /clda/v1
   client:
-    apiKey: f895602aec3d43239ef684a643193b6f.X2yBqY5gZdRlobo0
-    url: https://open.bigmodel.cn/api/paas
-    model: glm-4-flash
-    path: /v4/chat/completions
+    apiKey: ${CHAT_CLIENT_APIKEY:}
+    url: ${CHAT_CLIENT_URL:https://open.bigmodel.cn/api/paas}
+    model: ${CHAT_CLIENT_MODEL:glm-4-flash}
+    path: ${CHAT_CLIENT_PATH:/v4/chat/completions}
+
 logging:
   pattern:
-    # 日志日期格式
     dateformat: yyyy-MM-dd HH:mm:ss.SSS
   level:
-    org.springframework.ai.tool: DEBUG
+    org.springframework.ai.tool: ${CHAT_LOG_LEVEL:DEBUG}
+
 # 模型配置
 model:
   asr:
-    # sense-voice配置
     sense-voice:
-      # 这个换成本地的模型路径
-      model-dir: /Users/lucien/Programs/RuoYi-xiaozhi-master/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17
-      num-threads: 4
+      model-dir: ${MODEL_ASR_SENSE_VOICE_MODEL_DIR:./sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17}
+      num-threads: ${MODEL_ASR_NUM_THREADS:4}
   tts:
-    # 火山TTS
     volc-tts:
-      appid: 8801043537
-      access-token: ANs9RmifAoVlz5rqRj0vG532TsFU5oGO
+      appid: ${VOLC_TTS_APPID:}
+      access-token: ${VOLC_TTS_TOKEN:}

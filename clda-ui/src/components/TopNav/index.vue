@@ -44,7 +44,7 @@ const visibleNumber = ref(null)
 // 当前激活菜单的 index
 const currentIndex = ref(null)
 // 隐藏侧边栏路由
-const hideList = ['/index', '/user/profile']
+const hideList = ['/admin', '/admin/user/profile']
 
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
@@ -182,7 +182,7 @@ onMounted(() => {
 
 .topmenu-container.el-menu--horizontal > .el-menu-item.is-active, .el-menu--horizontal > .el-sub-menu.is-active .el-submenu__title {
   border-bottom: 2px solid #{'var(--theme)'} !important;
-  color: #303133;
+  color: var(--ds-on-surface);
 }
 
 /* sub-menu item */

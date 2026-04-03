@@ -10,7 +10,7 @@ import com.clda.quartz.service.ISysJobLogService;
 /**
  * 定时任务调度日志信息 服务层
  * 
- * @author ruoyi
+ * @author clda
  */
 @Service
 public class SysJobLogServiceImpl implements ISysJobLogService

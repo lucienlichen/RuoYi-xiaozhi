@@ -2,7 +2,7 @@
   <div class="inspection-view">
     <!-- 未选设备提示 -->
     <div v-if="!selectedEquipment" class="empty-state">
-      <el-icon :size="48" color="#cbd5e1"><Warning /></el-icon>
+      <el-icon :size="48" class="icon-muted"><Warning /></el-icon>
       <p>请先在左侧选择设备</p>
     </div>
 
@@ -75,7 +75,7 @@
       <!-- 右侧：排查表预览 -->
       <main class="inspection-right">
         <div v-if="!previewItems.length" class="preview-empty">
-          <el-icon :size="48" color="#cbd5e1"><DocumentChecked /></el-icon>
+          <el-icon :size="48" class="icon-muted"><DocumentChecked /></el-icon>
           <p>点击"生成排查表"预览排查内容</p>
         </div>
         <div v-else class="preview-area">
@@ -262,7 +262,7 @@ watch(selectedEquipment, () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--ds-surface, #f8fafc);
+  background: var(--ds-surface);
 }
 
 .empty-state {
@@ -272,7 +272,7 @@ watch(selectedEquipment, () => {
   justify-content: center;
   height: 100%;
   gap: 12px;
-  color: #94a3b8;
+  color: var(--ds-outline);
   font-size: 15px;
 }
 
@@ -290,13 +290,13 @@ watch(selectedEquipment, () => {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #e2e8f0;
-  background: #fff;
+  background: var(--ds-surface-container-lowest);
+  box-shadow: 1px 0 0 var(--ds-surface-container);
 }
 
 .action-section {
   padding: 16px;
-  border-bottom: 1px solid #f1f5f9;
+  background: var(--ds-surface-container-low);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -317,13 +317,13 @@ watch(selectedEquipment, () => {
 
 .eq-label {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--ds-outline);
 }
 
 .eq-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--ds-on-surface);
 }
 
 /* ===== 历史记录 ===== */
@@ -336,20 +336,20 @@ watch(selectedEquipment, () => {
 .history-title {
   font-size: 13px;
   font-weight: 700;
-  color: #475569;
+  color: var(--ds-on-surface-variant);
   margin-bottom: 10px;
 }
 
 .history-empty {
   text-align: center;
-  color: #94a3b8;
+  color: var(--ds-outline);
   font-size: 13px;
   padding: 24px 0;
 }
 
 .record-card {
-  background: #f8fafc;
-  border-radius: 8px;
+  background: var(--ds-surface);
+  border-radius: var(--ds-radius);
   margin-bottom: 8px;
   overflow: hidden;
 }
@@ -361,7 +361,7 @@ watch(selectedEquipment, () => {
   padding: 10px 12px;
   cursor: pointer;
   transition: background 0.15s;
-  &:hover { background: #f1f5f9; }
+  &:hover { background: var(--ds-surface-container-low); }
 }
 
 .record-info {
@@ -374,12 +374,12 @@ watch(selectedEquipment, () => {
 .record-date {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--ds-on-surface);
 }
 
 .record-inspector {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--ds-outline);
 }
 
 .record-summary {
@@ -394,18 +394,18 @@ watch(selectedEquipment, () => {
   border-radius: 4px;
 }
 
-.tag-major { background: #fef2f2; color: #dc2626; }
-.tag-other { background: #fef9c3; color: #a16207; }
-.tag-ok { background: #f0fdf4; color: #16a34a; }
+.tag-major { background: var(--ds-orange-surface); color: var(--ds-error); }
+.tag-other { background: var(--ds-amber-surface); color: var(--ds-amber); }
+.tag-ok { background: var(--ds-emerald-surface); color: var(--ds-success); }
 
 .record-chevron {
-  color: #94a3b8;
+  color: var(--ds-outline);
   transition: transform 0.2s;
   &.expanded { transform: rotate(180deg); }
 }
 
 .record-detail {
-  border-top: 1px solid #e2e8f0;
+  background: var(--ds-surface-container-low);
   padding: 8px 12px;
   max-height: 240px;
   overflow-y: auto;
@@ -416,7 +416,7 @@ watch(selectedEquipment, () => {
   align-items: center;
   gap: 6px;
   padding: 8px 0;
-  color: #94a3b8;
+  color: var(--ds-outline);
   font-size: 13px;
 }
 
@@ -431,13 +431,13 @@ watch(selectedEquipment, () => {
 .result-no {
   flex-shrink: 0;
   width: 24px;
-  color: #94a3b8;
+  color: var(--ds-outline);
   font-weight: 600;
 }
 
 .result-content {
   flex: 1;
-  color: #475569;
+  color: var(--ds-on-surface-variant);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -446,8 +446,8 @@ watch(selectedEquipment, () => {
 .result-val {
   flex-shrink: 0;
   font-weight: 700;
-  &.has { color: #dc2626; }
-  &.none { color: #16a34a; }
+  &.has { color: var(--ds-error); }
+  &.none { color: var(--ds-success); }
 }
 
 /* ===== 右侧预览 ===== */
@@ -464,7 +464,7 @@ watch(selectedEquipment, () => {
   justify-content: center;
   height: 100%;
   gap: 12px;
-  color: #94a3b8;
+  color: var(--ds-outline);
   font-size: 14px;
 }
 
@@ -479,7 +479,7 @@ watch(selectedEquipment, () => {
   h3 {
     font-size: 18px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--ds-on-surface);
     margin: 0 0 8px;
   }
 }
@@ -489,7 +489,7 @@ watch(selectedEquipment, () => {
   justify-content: center;
   gap: 24px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--ds-on-surface-variant);
 }
 
 .preview-category {
@@ -503,8 +503,8 @@ watch(selectedEquipment, () => {
   border-radius: 6px;
   margin-bottom: 8px;
 
-  &.major { background: #fef2f2; color: #dc2626; }
-  &.other { background: #fef9c3; color: #a16207; }
+  &.major { background: var(--ds-orange-surface); color: var(--ds-error); }
+  &.other { background: var(--ds-amber-surface); color: var(--ds-amber); }
 }
 
 .preview-table {
@@ -513,24 +513,24 @@ watch(selectedEquipment, () => {
   font-size: 13px;
 
   th, td {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--ds-surface-container);
     padding: 6px 10px;
     text-align: left;
   }
 
   th {
-    background: #f8fafc;
+    background: var(--ds-surface);
     font-weight: 600;
-    color: #475569;
+    color: var(--ds-on-surface-variant);
   }
 
   td {
-    color: #334155;
+    color: var(--ds-on-surface);
   }
 
   .result-cell {
     text-align: center;
-    color: #94a3b8;
+    color: var(--ds-outline);
     font-style: italic;
   }
 }
@@ -543,6 +543,8 @@ watch(selectedEquipment, () => {
 /* ===== 小屏 ===== */
 @media (max-width: 820px) {
   .inspection-body { flex-direction: column; }
-  .inspection-left { width: 100%; max-height: 50vh; border-right: none; border-bottom: 1px solid #e2e8f0; }
+  .inspection-left { width: 100%; max-height: 50vh; box-shadow: none; border-bottom: 1px solid var(--ds-surface-container); }
 }
+
+.icon-muted { color: var(--ds-outline-variant); }
 </style>

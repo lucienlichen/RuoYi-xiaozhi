@@ -6,7 +6,7 @@ import com.clda.common.core.domain.entity.SysRole;
 /**
  * 角色表 数据层
  * 
- * @author ruoyi
+ * @author clda
  */
 public interface SysRoleMapper
 {

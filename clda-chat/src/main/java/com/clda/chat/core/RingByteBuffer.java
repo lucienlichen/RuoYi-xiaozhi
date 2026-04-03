@@ -3,7 +3,7 @@ package com.clda.chat.core;
 /**
  * 环形字节缓冲区，支持高效循环读写操作
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public class RingByteBuffer {
 

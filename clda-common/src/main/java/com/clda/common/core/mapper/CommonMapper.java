@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 /**
  * 公用的Mapper
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface CommonMapper<T> extends BaseMapper<T> {
 

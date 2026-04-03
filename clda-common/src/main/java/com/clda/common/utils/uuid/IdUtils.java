@@ -3,7 +3,7 @@ package com.clda.common.utils.uuid;
 /**
  * ID生成器工具类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class IdUtils
 {

@@ -44,11 +44,14 @@ const usePermissionStore = defineStore(
             const defaultRoutes = filterAsyncRouter(defaultData)
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
-            this.setRoutes(rewriteRoutes)
-            this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
-            this.setDefaultRoutes(sidebarRoutes)
-            this.setTopbarRoutes(defaultRoutes)
-            resolve(rewriteRoutes)
+            const adminSidebarRoutes = prependAdminPrefix(sidebarRoutes)
+            const adminRewriteRoutes = prependAdminPrefix(rewriteRoutes)
+            const adminDefaultRoutes = prependAdminPrefix(defaultRoutes)
+            this.setRoutes(adminRewriteRoutes)
+            this.setSidebarRouters(constantRoutes.concat(adminSidebarRoutes))
+            this.setDefaultRoutes(adminSidebarRoutes)
+            this.setTopbarRoutes(adminDefaultRoutes)
+            resolve(adminRewriteRoutes)
           })
         })
       }
@@ -80,6 +83,25 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
       delete route['redirect']
     }
     return true
+  })
+}
+
+function prependAdminPrefix(routes) {
+  return routes.map(route => {
+    const newRoute = { ...route }
+    if (newRoute.path && !newRoute.path.startsWith('/admin')) {
+      newRoute.path = '/admin' + (newRoute.path.startsWith('/') ? '' : '/') + newRoute.path
+    }
+    if (newRoute.children) {
+      newRoute.children = newRoute.children.map(child => {
+        const newChild = { ...child }
+        if (newChild.meta && newChild.meta.activeMenu && !newChild.meta.activeMenu.startsWith('/admin')) {
+          newChild.meta = { ...newChild.meta, activeMenu: '/admin' + newChild.meta.activeMenu }
+        }
+        return newChild
+      })
+    }
+    return newRoute
   })
 }
 

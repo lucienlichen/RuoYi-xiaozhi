@@ -43,7 +43,7 @@
         </div>
       </template>
       <div v-if="equipmentStore.filteredPartitions.length === 0" class="sidebar-empty">
-        <el-icon :size="32" color="#c0c4cc"><Box /></el-icon>
+        <el-icon :size="32" class="sidebar-empty-icon"><Box /></el-icon>
         <span>暂无设备</span>
       </div>
     </div>
@@ -151,8 +151,8 @@ onMounted(async () => {
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-  &::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+  &::-webkit-scrollbar-thumb { background: var(--ds-surface-container); border-radius: 10px; }
+  &::-webkit-scrollbar-thumb:hover { background: var(--ds-outline-variant); }
 }
 
 .partition-group {
@@ -233,9 +233,9 @@ onMounted(async () => {
   border-radius: 50%;
   flex-shrink: 0;
 
-  &.NORMAL { background: #10b981; }
-  &.WARNING { background: #f59e0b; }
-  &.FAULT { background: #ef4444; }
+  &.NORMAL { background: var(--ds-success); }
+  &.WARNING { background: var(--ds-warning); }
+  &.FAULT { background: var(--ds-error); }
   &.STOPPED { background: var(--ds-outline); }
 }
 
@@ -253,7 +253,9 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 40px 0;
-  color: #c0c4cc;
+  color: var(--ds-outline);
   font-size: 13px;
+
+  &-icon { color: var(--ds-outline); }
 }
 </style>

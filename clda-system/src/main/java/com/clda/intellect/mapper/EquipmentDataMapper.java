@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 设备数据记录Mapper接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface EquipmentDataMapper extends CommonMapper<EquipmentData> {
 

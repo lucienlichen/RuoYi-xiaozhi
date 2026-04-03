@@ -3,7 +3,7 @@ package com.clda.common.utils.sign;
 /**
  * Base64工具类
  * 
- * @author ruoyi
+ * @author clda
  */
 public final class Base64
 {

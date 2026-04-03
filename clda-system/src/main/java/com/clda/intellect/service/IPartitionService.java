@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 设备分区Service接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface IPartitionService {
 

@@ -6,7 +6,7 @@ import com.clda.common.utils.DesensitizedUtil;
 /**
  * 脱敏类型
  *
- * @author ruoyi
+ * @author clda
  */
 public enum DesensitizedType
 {

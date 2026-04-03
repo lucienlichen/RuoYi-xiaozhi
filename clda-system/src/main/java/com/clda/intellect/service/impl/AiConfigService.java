@@ -62,6 +62,22 @@ public class AiConfigService {
         return Boolean.parseBoolean(getOrDefault("ai.llm.enabled", "true"));
     }
 
+    /**
+     * Chat Completions 路径。
+     * - 如果数据库里设置了 ai.llm.chatPath，直接用
+     * - 如果 baseUrl 已以版本号结尾（/v1、/v4 等），自动使用 /chat/completions
+     * - 否则使用 OpenAI 标准 /v1/chat/completions
+     */
+    public String getLlmChatPath() {
+        String saved = sysConfigService.selectConfigByKey("ai.llm.chatPath");
+        if (saved != null && !saved.isBlank()) return saved;
+        // 自动检测：baseUrl 已含版本号时（如 .../v4），不再重复拼 /v1
+        if (getLlmBaseUrl().matches(".*\\/v\\d+/?$")) {
+            return "/chat/completions";
+        }
+        return "/v1/chat/completions";
+    }
+
     // ========== 结构化 ==========
     public boolean isStructuringEnabled() {
         return Boolean.parseBoolean(getOrDefault("ai.structuring.enabled", "true"));

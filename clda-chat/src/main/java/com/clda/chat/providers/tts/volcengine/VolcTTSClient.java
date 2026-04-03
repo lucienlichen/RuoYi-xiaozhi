@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 /**
  * 火山引擎TTS客户端
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 public class VolcTTSClient extends WebSocketClient {

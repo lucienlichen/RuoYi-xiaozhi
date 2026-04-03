@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 设备生命周期数据记录对象 tb_equipment_data
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @TableName("tb_equipment_data")

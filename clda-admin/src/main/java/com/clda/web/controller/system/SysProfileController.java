@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.clda.common.annotation.Log;
-import com.clda.common.config.CldaConfig;
 import com.clda.common.core.controller.BaseController;
 import com.clda.common.core.domain.AjaxResult;
 import com.clda.common.core.domain.entity.SysUser;
@@ -19,15 +18,14 @@ import com.clda.common.core.domain.model.LoginUser;
 import com.clda.common.enums.BusinessType;
 import com.clda.common.utils.SecurityUtils;
 import com.clda.common.utils.StringUtils;
-import com.clda.common.utils.file.FileUploadUtils;
-import com.clda.common.utils.file.MimeTypeUtils;
+import com.clda.common.utils.minio.MinioService;
 import com.clda.framework.web.service.TokenService;
 import com.clda.system.service.ISysUserService;
 
 /**
  * 个人信息 业务处理
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestController
 @RequestMapping("/system/user/profile")
@@ -38,6 +36,9 @@ public class SysProfileController extends BaseController
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private MinioService minioService;
 
     /**
      * 个人信息
@@ -124,7 +125,8 @@ public class SysProfileController extends BaseController
         if (!file.isEmpty())
         {
             LoginUser loginUser = getLoginUser();
-            String avatar = FileUploadUtils.upload(CldaConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION);
+            String objectKey = minioService.upload(file, "avatar");
+            String avatar = "/minio/" + objectKey;
             if (userService.updateUserAvatar(loginUser.getUsername(), avatar))
             {
                 AjaxResult ajax = AjaxResult.success();

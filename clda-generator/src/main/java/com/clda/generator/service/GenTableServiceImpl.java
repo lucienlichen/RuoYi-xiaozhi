@@ -39,7 +39,7 @@ import com.clda.generator.util.VelocityUtils;
 /**
  * 业务 服务层实现
  * 
- * @author ruoyi
+ * @author clda
  */
 @Service
 public class GenTableServiceImpl implements IGenTableService

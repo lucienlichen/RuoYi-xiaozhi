@@ -60,6 +60,13 @@
             <version>5.11.0</version>
         </dependency>
 
+        <!-- EXIF 元数据读取（用于手机照片自动旋转） -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+
         <!-- OpenCV via JavaCV (图片预处理: 去噪/二值化/锐化/纠偏) -->
         <dependency>
             <groupId>org.bytedeco</groupId>

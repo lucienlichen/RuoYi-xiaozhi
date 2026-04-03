@@ -24,7 +24,7 @@ router.beforeEach((to, from, next) => {
     to.meta.title && useSettingsStore().setTitle(to.meta.title)
     /* has token*/
     if (to.path === '/login' || to.path === '/robot/login') {
-      next({ path: isRobotScreen() ? '/robot/menu' : '/app' })
+      next({ path: isRobotScreen() ? '/robot/menu' : '/business' })
       NProgress.done()
     } else if (isWhiteList(to.path)) {
       next()

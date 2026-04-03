@@ -163,6 +163,7 @@ import { ElMessage } from 'element-plus'
 import { getToken, setToken } from '@/utils/auth'
 import useUserStore from '@/store/modules/user'
 import request from '@/utils/request'
+import * as faceapi from '@vladmandic/face-api'
 
 const title = import.meta.env.VITE_APP_TITLE
 const router = useRouter()
@@ -185,8 +186,8 @@ let faceDetectionTimer = null
 let progressTimer = null
 let faceModelsLoaded = false
 
-// Face API configuration
-const FACE_MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/'
+// Face API configuration — 模型从本地 public 目录加载，支持离线内网部署
+const FACE_MODEL_URL = '/models/face-api/'
 const FACE_API_URL = `${import.meta.env.VITE_APP_BASE_API}/api/face/list`
 
 // Check if already logged in
@@ -270,10 +271,6 @@ async function startFaceRecognition() {
 
 async function loadFaceModels() {
   if (faceModelsLoaded) return
-  // face-api.js is loaded from CDN in index.html
-  if (typeof faceapi === 'undefined') {
-    throw new Error('face-api.js not loaded')
-  }
   await Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri(FACE_MODEL_URL),
     faceapi.nets.faceLandmark68TinyNet.loadFromUri(FACE_MODEL_URL),

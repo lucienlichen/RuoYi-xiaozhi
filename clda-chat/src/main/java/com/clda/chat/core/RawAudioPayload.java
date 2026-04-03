@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 /**
  * 音频帧数据对象
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 public class RawAudioPayload {

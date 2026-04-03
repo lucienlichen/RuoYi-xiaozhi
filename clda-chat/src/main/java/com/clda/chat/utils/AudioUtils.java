@@ -6,7 +6,7 @@ import java.nio.ShortBuffer;
 
 /**
  * 音频工具类
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public class AudioUtils {
 

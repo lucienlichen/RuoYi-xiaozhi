@@ -2,7 +2,7 @@ package com.clda.feign.core;
 
 /**
  * Feign调用异常
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public class FeignCallException extends RuntimeException {
 

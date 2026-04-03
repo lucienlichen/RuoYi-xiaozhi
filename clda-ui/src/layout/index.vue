@@ -80,8 +80,7 @@ function setLayout() {
 }
 
 .drawer-bg {
-  background: #000;
-  opacity: 0.3;
+  background: rgba(13, 28, 46, 0.25);
   width: 100%;
   top: 0;
   height: 100%;

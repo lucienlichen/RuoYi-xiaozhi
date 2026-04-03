@@ -15,7 +15,7 @@ import java.util.TimeZone;
 
 /**
  * Jackson配置
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Configuration
 public class JacksonConfig {

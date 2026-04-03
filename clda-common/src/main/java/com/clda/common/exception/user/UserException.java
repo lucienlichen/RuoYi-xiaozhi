@@ -5,7 +5,7 @@ import com.clda.common.exception.base.BaseException;
 /**
  * 用户信息异常类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class UserException extends BaseException
 {

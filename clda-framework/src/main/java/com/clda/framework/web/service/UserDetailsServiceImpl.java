@@ -18,7 +18,7 @@ import com.clda.system.service.ISysUserService;
 /**
  * 用户验证处理
  *
- * @author ruoyi
+ * @author clda
  */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService

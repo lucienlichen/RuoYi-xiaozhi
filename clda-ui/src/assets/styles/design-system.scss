@@ -77,10 +77,35 @@
   /* ===== Typography ===== */
   --ds-font-display: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --ds-font-body: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  /* ===== Element Plus Bridge Tokens (Light) ===== */
+  --el-color-primary: var(--ds-primary);
+  --el-color-primary-light-3: #3a6199;
+  --el-color-primary-light-5: #7f98bb;
+  --el-color-primary-light-7: #b3c2d7;
+  --el-color-primary-light-8: #ccd5e4;
+  --el-color-primary-light-9: #e5eaf1;
+  --el-color-primary-dark-2: #002760;
+  --el-bg-color: var(--ds-surface-container-lowest);
+  --el-bg-color-overlay: var(--ds-surface-container-lowest);
+  --el-bg-color-page: var(--ds-surface);
+  --el-text-color-primary: var(--ds-on-surface);
+  --el-text-color-regular: var(--ds-on-surface-variant);
+  --el-text-color-secondary: var(--ds-outline);
+  --el-text-color-placeholder: var(--ds-outline-variant);
+  --el-border-color: var(--ds-surface-container-high);
+  --el-border-color-light: var(--ds-surface-container);
+  --el-border-color-lighter: var(--ds-surface-container-low);
+  --el-border-color-extra-light: var(--ds-surface-container-low);
+  --el-fill-color: var(--ds-surface-container-low);
+  --el-fill-color-light: var(--ds-surface-container-low);
+  --el-fill-color-lighter: var(--ds-surface);
+  --el-fill-color-blank: var(--ds-surface-container-lowest);
+  --el-mask-color: rgba(13, 28, 46, 0.25);
 }
 
-/* ===== Dark Mode (Robot端) ===== */
-.ds-dark {
+/* ===== Dark Mode (unified: html.dark for toggle, .ds-dark for static Robot端) ===== */
+html.dark, .ds-dark {
   --ds-surface: #0c1222;
   --ds-surface-container-low: #111827;
   --ds-surface-container: #1a2236;
@@ -96,9 +121,58 @@
   --ds-shadow-sm: 0px 2px 8px rgba(0, 0, 0, 0.2);
   --ds-shadow-md: 0px 4px 16px rgba(0, 0, 0, 0.25);
   --ds-shadow-lg: 0px 12px 32px rgba(0, 0, 0, 0.3);
+  --ds-shadow-xl: 0px 16px 48px rgba(0, 0, 0, 0.35);
 
   --ds-glass-bg: rgba(12, 18, 34, 0.7);
   --ds-glass-border: rgba(195, 198, 212, 0.08);
+
+  /* Element Plus Bridge Tokens (Dark) */
+  --el-color-primary: var(--ds-primary);
+  --el-color-primary-light-3: #1a4a8f;
+  --el-color-primary-light-5: #19305e;
+  --el-color-primary-light-7: #142440;
+  --el-color-primary-light-8: #111d33;
+  --el-color-primary-light-9: #0e1726;
+  --el-color-primary-dark-2: #3a6199;
+  --el-bg-color: var(--ds-surface-container-lowest);
+  --el-bg-color-overlay: var(--ds-surface-container-low);
+  --el-bg-color-page: var(--ds-surface);
+  --el-text-color-primary: var(--ds-on-surface);
+  --el-text-color-regular: var(--ds-on-surface-variant);
+  --el-text-color-secondary: var(--ds-outline);
+  --el-text-color-placeholder: #5a5e6e;
+  --el-border-color: var(--ds-surface-container-high);
+  --el-border-color-light: var(--ds-surface-container);
+  --el-border-color-lighter: var(--ds-surface-container-low);
+  --el-border-color-extra-light: var(--ds-surface-container-low);
+  --el-fill-color: var(--ds-surface-container);
+  --el-fill-color-light: var(--ds-surface-container-low);
+  --el-fill-color-lighter: var(--ds-surface);
+  --el-fill-color-blank: var(--ds-surface-container-lowest);
+  --el-mask-color: rgba(0, 0, 0, 0.5);
+
+  /* Sidebar/Navbar dark overrides */
+  --sidebar-bg: var(--ds-surface-container-lowest);
+  --sidebar-text: var(--ds-on-surface);
+  --menu-hover: var(--ds-surface-container);
+  --navbar-bg: var(--ds-surface-container-lowest);
+  --navbar-text: var(--ds-on-surface);
+  --navbar-hover: var(--ds-surface-container);
+
+  /* Tags */
+  --tags-bg: var(--ds-surface-container-lowest);
+  --tags-item-bg: var(--ds-surface-container-low);
+  --tags-item-border: var(--ds-surface-container);
+  --tags-item-text: var(--ds-on-surface-variant);
+  --tags-item-hover: var(--ds-surface-container);
+  --tags-close-hover: var(--ds-outline);
+
+  /* Misc */
+  --splitpanes-default-bg: var(--ds-surface-container-lowest);
+  --blockquote-bg: var(--ds-surface-container-low);
+  --blockquote-border: var(--ds-surface-container);
+  --blockquote-text: var(--ds-on-surface-variant);
+  --cron-border: var(--ds-surface-container);
 }
 
 /* ===== Ghost Border Utility ===== */

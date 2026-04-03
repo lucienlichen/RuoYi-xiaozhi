@@ -16,6 +16,7 @@ import com.clda.intellect.service.IDeviceService;
 import com.clda.feign.vo.DeviceDetailVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PropertyPlaceholderHelper;
 
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * 设备管理Service业务层处理
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 @Service
@@ -37,6 +38,14 @@ public class DeviceServiceImpl implements IDeviceService {
 
     /** 设备激活缓存key */
     public static final String DEVICE_DATA_CACHE_KEY = "ota_activation_data:";
+
+    /**
+     * 设备激活后返回的 WebSocket 地址。
+     * 可通过环境变量 CHAT_WS_URL 覆盖，支持反向代理、HTTPS、多机部署。
+     * 为空时回退到本机 IP 自动拼接（仅适用于单机开发）。
+     */
+    @Value("${chat.ws.url:}")
+    private String chatWsUrl;
 
     /** 设备验证码缓存Key */
     public static final String DEVICE_CODE_CACHE_KEY = "ota_activation_code:";
@@ -129,7 +138,15 @@ public class DeviceServiceImpl implements IDeviceService {
             response.setActivation(activation);
         }else {
             DeviceReportVO.Websocket websocket = new DeviceReportVO.Websocket();
-            websocket.setUrl("ws://" + NetUtil.getLocalhost().getHostAddress() +":8082/clda/v1");
+            if (StrUtil.isNotBlank(chatWsUrl))
+            {
+                websocket.setUrl(chatWsUrl);
+            }
+            else
+            {
+                // 回退：本机 IP 直连（仅适用于单机开发环境）
+                websocket.setUrl("ws://" + NetUtil.getLocalhost().getHostAddress() + ":8082/clda/v1");
+            }
             response.setWebsocket(websocket);
         }
         return response;

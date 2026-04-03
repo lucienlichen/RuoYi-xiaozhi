@@ -7,7 +7,7 @@ import com.clda.common.utils.DateUtils;
 /**
  * JVM相关信息
  * 
- * @author ruoyi
+ * @author clda
  */
 public class Jvm
 {

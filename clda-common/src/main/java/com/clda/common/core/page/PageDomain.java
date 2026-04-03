@@ -5,7 +5,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * 分页数据
  * 
- * @author ruoyi
+ * @author clda
  */
 public class PageDomain
 {

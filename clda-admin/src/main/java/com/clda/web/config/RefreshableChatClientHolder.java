@@ -39,6 +39,7 @@ public class RefreshableChatClientHolder implements ChatClientProvider {
         OpenAiApi api = OpenAiApi.builder()
                 .baseUrl(aiConfigService.getLlmBaseUrl())
                 .apiKey(aiConfigService.getLlmApiKey())
+                .completionsPath(aiConfigService.getLlmChatPath())
                 .build();
         OpenAiChatModel chatModel = OpenAiChatModel.builder()
                 .openAiApi(api)

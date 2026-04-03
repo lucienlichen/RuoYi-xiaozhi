@@ -9,7 +9,7 @@ import com.clda.common.utils.spring.SpringUtils;
 /**
  * 异步任务管理器
  * 
- * @author ruoyi
+ * @author clda
  */
 public class AsyncManager
 {

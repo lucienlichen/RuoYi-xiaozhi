@@ -35,7 +35,7 @@ import com.clda.system.service.ISysUserService;
 /**
  * 用户信息
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestController
 @RequestMapping("/system/user")

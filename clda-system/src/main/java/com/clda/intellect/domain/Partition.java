@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 设备分区（厂区）对象 tb_partition
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @TableName("tb_partition")

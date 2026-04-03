@@ -78,16 +78,20 @@ import VueOfficeDocx from '@vue-office/docx'
 import '@vue-office/docx/lib/index.css'
 import { getBooksWithTree, getChapter } from '@/api/intellect/knowledge'
 
-const COLORS = ['#EC4899', '#8b5cf6', '#f59e0b']
-const COLORS_LIGHT = ['#fce7f3', '#ede9fe', '#fef3c7']
+const DS_VARS = ['--ds-rose', '--ds-indigo', '--ds-amber']
+const DS_SURFACE_VARS = ['--ds-rose-surface', '--ds-indigo-surface', '--ds-amber-surface']
+
+function getCssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
 
 function bookColor(book) {
   const idx = books.value.indexOf(book)
-  return COLORS[idx % COLORS.length]
+  return getCssVar(DS_VARS[idx % DS_VARS.length])
 }
 function bookColorLight(book) {
   const idx = books.value.indexOf(book)
-  return COLORS_LIGHT[idx % COLORS_LIGHT.length]
+  return getCssVar(DS_SURFACE_VARS[idx % DS_SURFACE_VARS.length])
 }
 
 const books = ref([])
@@ -364,5 +368,36 @@ onMounted(() => {
 
   .ch-row { padding: 10px; }
   .ch-title { font-size: 15px; }
+}
+
+/* ===== Portrait 8-inch (800x1280) ===== */
+@media (max-width: 820px) and (orientation: portrait) {
+  .kn-body {
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 10px;
+    gap: var(--ds-space-3);
+  }
+
+  .kn-col {
+    flex: none;
+    overflow: visible;
+  }
+
+  .book-card {
+    flex: none;
+    min-height: auto;
+  }
+
+  .book-label { font-size: 16px; }
+  .book-badge { font-size: 13px; padding: 3px 10px; }
+
+  .ch-row {
+    padding: 12px 10px;
+    min-height: 44px;
+  }
+
+  .ch-title { font-size: 16px; }
+  .ch-num { width: 30px; height: 30px; font-size: 14px; }
 }
 </style>

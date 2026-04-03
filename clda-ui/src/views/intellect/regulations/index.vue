@@ -103,7 +103,7 @@
         <VueOfficeDocx v-else-if="fileType === 'docx'" :src="fileUrl" class="file-viewer" />
         <!-- 其他格式：下载提示 -->
         <div v-else-if="selectedDoc && !docLoading" class="file-fallback">
-          <el-icon :size="48" color="#94a3b8"><Document /></el-icon>
+          <el-icon :size="48" class="file-fallback-icon"><Document /></el-icon>
           <p>该文件格式（{{ fileExt }}）暂不支持在线预览</p>
           <a :href="fileUrl" :download="selectedDoc?.fileName" target="_blank">
             <el-button type="primary" icon="Download">下载文件查看</el-button>
@@ -123,10 +123,10 @@ import '@vue-office/docx/lib/index.css'
 import { listRegulations, getRegulation } from '@/api/intellect/regulation'
 
 const categories = [
-  { id: 'laws', label: '法律法规', color: '#3b82f6', colorLight: '#dbeafe' },
-  { id: 'market_rules', label: '市场监管总局规章', color: '#8b5cf6', colorLight: '#ede9fe' },
-  { id: 'tsg', label: '特种设备安全技术规范TSG', color: '#f59e0b', colorLight: '#fef3c7' },
-  { id: 'standards', label: '标准', color: '#10b981', colorLight: '#d1fae5' }
+  { id: 'laws', label: '法律法规', color: 'var(--ds-primary)', colorLight: 'var(--el-color-primary-light-9)' },
+  { id: 'market_rules', label: '市场监管总局规章', color: 'var(--ds-indigo)', colorLight: 'var(--ds-indigo-surface)' },
+  { id: 'tsg', label: '特种设备安全技术规范TSG', color: 'var(--ds-amber)', colorLight: 'var(--ds-amber-surface)' },
+  { id: 'standards', label: '标准', color: 'var(--ds-emerald)', colorLight: 'var(--ds-emerald-surface)' }
 ]
 
 const allDocs = ref({})
@@ -389,6 +389,8 @@ onMounted(() => {
   font-size: 14px;
 
   a { text-decoration: none; }
+
+  &-icon { color: var(--ds-outline); }
 }
 
 /* ===== Robot / 小屏适配 ===== */
@@ -417,5 +419,35 @@ onMounted(() => {
 
   .doc-row { padding: 10px; }
   .doc-row-title { font-size: 15px; }
+}
+
+/* ===== Portrait 8-inch (800x1280) ===== */
+@media (max-width: 820px) and (orientation: portrait) {
+  .reg-body {
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 10px;
+    gap: var(--ds-space-3);
+  }
+
+  .reg-col {
+    flex: none;
+    overflow: visible;
+  }
+
+  .cat-card {
+    flex: none;
+    min-height: auto;
+  }
+
+  .cat-label { font-size: 16px; }
+  .cat-badge { font-size: 13px; padding: 3px 10px; }
+
+  .doc-row {
+    padding: 12px 10px;
+    min-height: 44px;
+  }
+
+  .doc-row-title { font-size: 16px; line-height: 1.5; }
 }
 </style>

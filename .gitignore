@@ -56,5 +56,16 @@ sherpa-onnx-sense-voice-*/
 xiaozhi-ui/node_modules/
 xiaozhi-ui/dist/
 
+# Local upload data (test artifacts)
+**/uploadPath/
+clda-admin/D:/
+
+# IDE
+.vscode/
+
+# Environment secrets (never commit)
+.env
+docker/.env
+
 # OS files
 .DS_Store

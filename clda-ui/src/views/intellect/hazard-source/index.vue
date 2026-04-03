@@ -51,7 +51,7 @@
       <main class="hazard-main">
         <!-- 未选择状态 -->
         <div v-if="!activeSubId" class="main-empty">
-          <el-icon :size="48" color="#e2e8f0"><Warning /></el-icon>
+          <el-icon :size="48" class="empty-icon"><Warning /></el-icon>
           <p>请从左侧选择危险源分类进行排查</p>
         </div>
 
@@ -90,14 +90,14 @@
                 <span></span><span></span><span></span>
               </div>
               <span v-if="analysisStep === 0">正在分析危险源...</span>
-              <el-icon v-if="analysisStep >= 1" color="#10b981" :size="18"><CircleCheck /></el-icon>
+              <el-icon v-if="analysisStep >= 1" class="icon-success" :size="18"><CircleCheck /></el-icon>
               <span v-if="analysisStep >= 1">分析完成</span>
             </div>
 
             <!-- Step 2: 危险源描述 -->
             <transition name="fade-slide">
               <div v-if="analysisStep >= 1" class="analysis-section">
-                <div class="section-icon"><el-icon :size="18" color="#3b82f6"><Search /></el-icon></div>
+                <div class="section-icon"><el-icon :size="18" class="icon-primary"><Search /></el-icon></div>
                 <div class="section-content">
                   <h4 class="section-title">危险源描述</h4>
                   <p class="section-text">{{ analysisTarget.description }}</p>
@@ -108,7 +108,7 @@
             <!-- Step 3: 产生原因 -->
             <transition name="fade-slide">
               <div v-if="analysisStep >= 2" class="analysis-section">
-                <div class="section-icon"><el-icon :size="18" color="#f59e0b"><WarningFilled /></el-icon></div>
+                <div class="section-icon"><el-icon :size="18" class="icon-warning"><WarningFilled /></el-icon></div>
                 <div class="section-content">
                   <h4 class="section-title">产生原因</h4>
                   <div v-if="causeGroups.length === 0" class="section-text">该危险源为环境因素，无特定产生原因条款</div>
@@ -129,7 +129,7 @@
             <!-- Step 4: 危险事件 -->
             <transition name="fade-slide">
               <div v-if="analysisStep >= 3" class="analysis-section">
-                <div class="section-icon"><el-icon :size="18" color="#ef4444"><Bell /></el-icon></div>
+                <div class="section-icon"><el-icon :size="18" class="icon-error"><Bell /></el-icon></div>
                 <div class="section-content">
                   <h4 class="section-title">可能导致的危险事件</h4>
                   <div class="event-list">
@@ -502,7 +502,7 @@ onMounted(async () => {
   transition: all 0.3s;
 
   &.done {
-    background: #f0fdf4;
+    background: var(--ds-emerald-surface);
     color: var(--ds-success);
   }
 }
@@ -515,7 +515,7 @@ onMounted(async () => {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #94a3b8;
+    background: var(--ds-outline);
     animation: dot-pulse 1.2s infinite ease-in-out;
 
     &:nth-child(2) { animation-delay: 0.2s; }
@@ -544,7 +544,7 @@ onMounted(async () => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: #f8fafc;
+  background: var(--ds-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -558,13 +558,13 @@ onMounted(async () => {
 .section-title {
   font-size: 14px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--ds-on-surface);
   margin: 0 0 8px;
 }
 
 .section-text {
   font-size: 14px;
-  color: #475569;
+  color: var(--ds-on-surface-variant);
   line-height: 1.6;
 }
 
@@ -583,15 +583,15 @@ onMounted(async () => {
 .cause-stage-name {
   font-size: 12px;
   font-weight: 700;
-  color: #f59e0b;
-  background: #fef3c7;
+  color: var(--ds-amber);
+  background: var(--ds-amber-surface);
   padding: 1px 8px;
   border-radius: 4px;
 }
 
 .cause-stage-count {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--ds-outline);
 }
 
 .cause-item {
@@ -604,14 +604,14 @@ onMounted(async () => {
 
 .cause-code {
   flex-shrink: 0;
-  color: #94a3b8;
+  color: var(--ds-outline);
   font-family: monospace;
   font-size: 11px;
   min-width: 52px;
 }
 
 .cause-desc {
-  color: #475569;
+  color: var(--ds-on-surface-variant);
 }
 
 /* 事件标签 */
@@ -626,7 +626,7 @@ onMounted(async () => {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #fef2f2;
+  background: var(--ds-orange-surface);
   box-shadow: var(--ds-shadow-sm);
   border-radius: var(--ds-radius);
   color: var(--ds-error);
@@ -647,7 +647,14 @@ onMounted(async () => {
 /* ===== 小屏适配 ===== */
 @media (max-width: 820px) {
   .hazard-body { flex-direction: column; }
-  .hazard-sidebar { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid #e2e8f0; }
+  .hazard-sidebar { width: 100%; max-height: 200px; border-right: none; box-shadow: inset 0 -1px 0 var(--ds-surface-container); }
   .item-desc { font-size: 15px; }
 }
+
+/* Utility icon classes */
+.empty-icon { color: var(--ds-surface-container); }
+.icon-success { color: var(--ds-success); }
+.icon-primary { color: var(--ds-primary); }
+.icon-warning { color: var(--ds-warning); }
+.icon-error { color: var(--ds-error); }
 </style>

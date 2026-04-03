@@ -3,7 +3,7 @@ package com.clda.common.constant;
 /**
  * 用户常量信息
  * 
- * @author ruoyi
+ * @author clda
  */
 public class UserConstants
 {

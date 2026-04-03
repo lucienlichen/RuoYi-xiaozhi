@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 火山引擎TTS配置
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 @Configuration

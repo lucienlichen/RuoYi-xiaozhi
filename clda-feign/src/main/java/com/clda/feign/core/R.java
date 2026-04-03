@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * 响应信息主体
  *
- * @author ruoyi
+ * @author clda
  */
 @Data
 public class R<T> {

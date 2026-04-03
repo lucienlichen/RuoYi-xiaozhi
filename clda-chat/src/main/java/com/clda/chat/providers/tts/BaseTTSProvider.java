@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 
 /**
  * TTS抽象基类
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Slf4j
 public abstract class BaseTTSProvider implements Closeable {

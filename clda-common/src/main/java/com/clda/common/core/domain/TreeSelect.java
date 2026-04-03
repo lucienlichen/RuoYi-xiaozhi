@@ -12,7 +12,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * Treeselect树结构实体类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class TreeSelect implements Serializable
 {

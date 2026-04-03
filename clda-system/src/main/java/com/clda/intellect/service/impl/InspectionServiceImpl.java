@@ -1,8 +1,7 @@
 package com.clda.intellect.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.clda.common.config.CldaConfig;
-import com.clda.common.utils.file.FileUploadUtils;
+import com.clda.common.utils.minio.MinioService;
 import com.clda.intellect.domain.InspectionItem;
 import com.clda.intellect.domain.InspectionRecord;
 import com.clda.intellect.domain.InspectionResult;
@@ -35,6 +34,7 @@ public class InspectionServiceImpl implements IInspectionService {
     private final InspectionItemMapper itemMapper;
     private final InspectionRecordMapper recordMapper;
     private final InspectionResultMapper resultMapper;
+    private final MinioService minioService;
 
     /** 序号列 */
     private static final int COL_NO = 0;
@@ -206,7 +206,8 @@ public class InspectionServiceImpl implements IInspectionService {
         // 1. 保存文件
         String filePath;
         try {
-            filePath = FileUploadUtils.upload(CldaConfig.getUploadPath(), file);
+            String objectKey = minioService.upload(file, "upload/inspection");
+            filePath = "/minio/" + objectKey;
         } catch (Exception e) {
             throw new RuntimeException("文件上传失败", e);
         }

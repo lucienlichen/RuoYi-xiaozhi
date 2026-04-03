@@ -3,7 +3,7 @@ package com.clda.common.constant;
 /**
  * 任务调度通用常量
  * 
- * @author ruoyi
+ * @author clda
  */
 public class ScheduleConstants
 {

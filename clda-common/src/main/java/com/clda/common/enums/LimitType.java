@@ -3,7 +3,7 @@ package com.clda.common.enums;
 /**
  * 限流类型
  *
- * @author ruoyi
+ * @author clda
  */
 
 public enum LimitType

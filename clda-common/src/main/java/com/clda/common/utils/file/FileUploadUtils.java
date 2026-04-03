@@ -18,7 +18,7 @@ import com.clda.common.utils.uuid.Seq;
 /**
  * 文件上传工具类
  *
- * @author ruoyi
+ * @author clda
  */
 public class FileUploadUtils
 {

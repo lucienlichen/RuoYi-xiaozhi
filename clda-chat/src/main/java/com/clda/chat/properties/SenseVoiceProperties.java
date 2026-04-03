@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * SenseVoice配置
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @Component

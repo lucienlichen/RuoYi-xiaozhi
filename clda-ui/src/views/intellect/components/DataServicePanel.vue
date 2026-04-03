@@ -50,9 +50,21 @@
         </el-table-column>
         <el-table-column label="结构化" width="72" align="center">
           <template #default="{ row }">
-            <el-button v-if="row.structuredData" link type="success" size="small" @click.stop="openArtifact(row, 'structured')">查看</el-button>
-            <el-tag v-else-if="row.ocrStatus === 'DONE'" size="small" type="warning">待处理</el-tag>
+            <el-button v-if="row.structuredData && row.structuredData !== '{}'" link type="success" size="small" @click.stop="openArtifact(row, 'structured')">查看</el-button>
             <span v-else class="cell-empty">-</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="72" align="center" fixed="right">
+          <template #default="{ row }">
+            <el-tooltip content="重新处理" placement="top">
+              <el-button
+                link type="warning" size="small"
+                :loading="reprocessingIds.has(row.id)"
+                @click.stop="handleReprocess(row)"
+              >
+                <el-icon><Refresh /></el-icon>
+              </el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -117,8 +129,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { listCategories, listEquipData, getDataFiles, getStructuredData } from '@/api/intellect/equipdata'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Refresh } from '@element-plus/icons-vue'
+import { listCategories, listEquipData, getDataFiles, getStructuredData, reprocessFile } from '@/api/intellect/equipdata'
 import { listTemplates } from '@/api/intellect/structuring'
 
 const props = defineProps({
@@ -136,6 +150,9 @@ const loading = ref(false)
 const pageNum = ref(1)
 const pageSize = 10
 const totalRecords = ref(0)
+
+// Reprocess
+const reprocessingIds = ref(new Set())
 
 // Drawer
 const drawerVisible = ref(false)
@@ -188,7 +205,35 @@ const parsedDrawerStructured = computed(() => {
 onMounted(async () => {
   await loadCategoriesData()
   await loadAllTemplates()
+  consumeInitialFile()
 })
+
+/**
+ * 消费 initialFile prop：切换到对应分类 tab 并打开结构化详情抽屉
+ */
+function consumeInitialFile() {
+  const file = props.initialFile
+  if (!file) return
+
+  // 找到文件所属的分类 — 需要从文件关联的 dataId 查找，
+  // 但 file 对象里一般带有 categoryId 或可通过 dataId 间接获取。
+  // 这里直接使用文件对象打开抽屉，同时尝试匹配分类 tab。
+  if (file.categoryId) {
+    // 文件对象携带了 categoryId，找顶级分类并切换 tab
+    const cat = allCategories.value.find(c => String(c.id) === String(file.categoryId))
+    if (cat) {
+      // 如果是子分类，找它的父级
+      const tabId = cat.parentId && String(cat.parentId) !== '0' ? String(cat.parentId) : String(cat.id)
+      activeTab.value = tabId
+    }
+  }
+
+  // 延迟到文件列表加载后再打开抽屉
+  const mode = (file.structuredData && file.structuredData !== '{}') ? 'structured' : 'ocr'
+  nextTick(() => {
+    openArtifact(file, mode)
+  })
+}
 
 async function loadCategoriesData() {
   try {
@@ -210,6 +255,7 @@ async function loadAllTemplates() {
 watch(activeTab, () => { pageNum.value = 1; loadFiles() })
 watch(pageNum, () => loadFiles())
 watch(() => props.equipmentId, () => { if (props.equipmentId) loadFiles() })
+watch(() => props.initialFile, () => consumeInitialFile())
 
 async function loadFiles() {
   if (!props.equipmentId || !activeTab.value) return
@@ -230,6 +276,22 @@ async function loadFiles() {
     }
     files.value = allFiles
   } finally { loading.value = false }
+}
+
+async function handleReprocess(row) {
+  reprocessingIds.value = new Set([...reprocessingIds.value, row.id])
+  try {
+    await reprocessFile(row.id)
+    ElMessage.success('已重新提交处理，请稍候...')
+    // 短暂延迟后刷新，让后端有时间更新状态
+    setTimeout(() => loadFiles(), 1500)
+  } catch {
+    ElMessage.error('重新处理失败')
+  } finally {
+    const next = new Set(reprocessingIds.value)
+    next.delete(row.id)
+    reprocessingIds.value = next
+  }
 }
 
 function openArtifact(row, mode) {
@@ -263,35 +325,35 @@ function fileUrl(path) {
 .data-service-panel { display: flex; flex-direction: column; height: 100%; background: var(--ds-surface-container-lowest); }
 
 .panel-tabs {
-  display: flex; padding: 0 20px; overflow-x: auto; border-bottom: 1px solid #e5e7eb; flex-shrink: 0;
+  display: flex; padding: 0 20px; overflow-x: auto; background: var(--ds-surface-container-low); flex-shrink: 0;
   &::-webkit-scrollbar { display: none; }
 }
 .panel-tab {
-  padding: 10px 16px; font-size: 12px; font-weight: 500; color: #6b7280; cursor: pointer;
+  padding: 10px 16px; font-size: 12px; font-weight: 500; color: var(--ds-on-surface-variant); cursor: pointer;
   white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s;
-  &:hover { color: #006c49; }
-  &.active { color: #006c49; font-weight: 700; border-bottom-color: #006c49; }
+  &:hover { color: var(--ds-emerald); }
+  &.active { color: var(--ds-emerald); font-weight: 700; border-bottom-color: var(--ds-emerald); }
 }
 
 .panel-content { flex: 1; overflow: auto; padding: 12px 16px; }
-.cell-empty { color: #d1d5db; }
-.panel-pagination { padding: 12px 20px; display: flex; justify-content: center; border-top: 1px solid #e5e7eb; }
+.cell-empty { color: var(--ds-outline-variant); }
+.panel-pagination { padding: 12px 20px; display: flex; justify-content: center; background: var(--ds-surface-container-low); }
 
 /* Drawer */
 .drawer-body { padding: 0 4px; }
 .drawer-section { margin-bottom: 20px; h4 { font-size: 13px; font-weight: 600; margin: 0 0 8px; } }
-.drawer-img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; }
-.drawer-iframe { width: 100%; height: 400px; border: none; border-radius: 8px; }
-.drawer-nopreview { color: #9ca3af; text-align: center; padding: 20px; }
+.drawer-img { width: 100%; border-radius: var(--ds-radius); box-shadow: var(--ds-shadow-sm); }
+.drawer-iframe { width: 100%; height: 400px; border: none; border-radius: var(--ds-radius); }
+.drawer-nopreview { color: var(--ds-outline); text-align: center; padding: 20px; }
 .drawer-text {
   white-space: pre-wrap; word-break: break-all; font-size: 12px; line-height: 1.6;
-  color: #374151; background: #f9fafb; padding: 12px; border-radius: 8px;
+  color: var(--ds-on-surface); background: var(--ds-surface-container-low); padding: 12px; border-radius: var(--ds-radius);
   max-height: 300px; overflow-y: auto; margin: 0;
 }
 .structured-table {
   width: 100%; border-collapse: collapse; font-size: 13px;
-  th { text-align: left; padding: 8px 12px; background: #f3f4f6; font-weight: 600; font-size: 12px; }
-  td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
+  th { text-align: left; padding: 8px 12px; background: var(--ds-surface-container-low); font-weight: 600; font-size: 12px; }
+  td { padding: 8px 12px; box-shadow: inset 0 -1px 0 var(--ds-surface-container); }
   .field-key { font-weight: 500; width: 35%; white-space: nowrap; }
 }
 </style>

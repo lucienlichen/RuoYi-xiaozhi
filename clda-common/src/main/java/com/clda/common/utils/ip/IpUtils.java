@@ -9,7 +9,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * 获取IP方法
  * 
- * @author ruoyi
+ * @author clda
  */
 public class IpUtils
 {

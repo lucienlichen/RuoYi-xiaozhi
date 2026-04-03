@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 设备数据采集Service接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface IEquipmentDataService {
 

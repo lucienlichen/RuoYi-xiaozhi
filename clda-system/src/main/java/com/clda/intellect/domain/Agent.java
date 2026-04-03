@@ -12,7 +12,7 @@ import com.clda.common.core.domain.BaseEntity;
 /**
  * 智能体对象 tb_agent
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @TableName("tb_agent")

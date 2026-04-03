@@ -15,7 +15,7 @@ import com.clda.common.core.domain.BaseEntity;
 /**
  * 设备管理对象 tb_device
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @TableName("tb_device")

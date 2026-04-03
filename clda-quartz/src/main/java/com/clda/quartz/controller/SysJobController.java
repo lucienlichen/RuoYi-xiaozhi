@@ -30,7 +30,7 @@ import com.clda.quartz.util.ScheduleUtils;
 /**
  * 调度任务信息操作处理
  * 
- * @author ruoyi
+ * @author clda
  */
 @RestController
 @RequestMapping("/monitor/job")

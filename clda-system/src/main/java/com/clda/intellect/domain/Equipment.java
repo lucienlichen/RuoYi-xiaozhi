@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 起重设备对象 tb_equipment
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 @Data
 @TableName("tb_equipment")

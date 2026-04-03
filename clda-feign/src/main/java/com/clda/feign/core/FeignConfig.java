@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * Feign配置
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public class FeignConfig {
 

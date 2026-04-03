@@ -6,7 +6,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * sql操作工具类
  * 
- * @author ruoyi
+ * @author clda
  */
 public class SqlUtil
 {

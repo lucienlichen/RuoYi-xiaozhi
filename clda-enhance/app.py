@@ -14,15 +14,14 @@ from pathlib import Path
 import cv2
 import numpy as np
 import uvicorn
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from PIL import Image
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 
-UPLOAD_BASE_PATH = Path(os.getenv("UPLOAD_BASE_PATH", "/opt/clda/uploadPath"))
 PORT = int(os.getenv("PORT", "8090"))
 
 logging.basicConfig(
@@ -111,7 +110,7 @@ async def health():
 
 
 @app.post("/enhance")
-async def enhance(file: UploadFile = File(...)):
+async def enhance(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     # Validate file type
     if file.filename is None:
         raise HTTPException(status_code=400, detail="Filename is required")
@@ -147,14 +146,11 @@ async def enhance(file: UploadFile = File(...)):
         logger.error("Enhancement failed: %s", exc)
         raise HTTPException(status_code=500, detail="Image enhancement failed")
 
-    # Build output path alongside original upload directory
+    # Save to temp file
     stem = Path(file.filename).stem
     out_name = f"{stem}_enhanced_{uuid.uuid4().hex[:8]}{ext}"
-    out_dir = UPLOAD_BASE_PATH / "enhanced"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / out_name
+    out_path = Path("/tmp") / out_name
 
-    # Save enhanced image
     try:
         if ext in {".jpg", ".jpeg"}:
             cv2.imwrite(str(out_path), result_bgr, [cv2.IMWRITE_JPEG_QUALITY, 95])
@@ -169,13 +165,11 @@ async def enhance(file: UploadFile = File(...)):
     backend = "realesrgan" if _upsampler is not None else "opencv"
     logger.info("Enhanced %s -> %s (backend=%s)", file.filename, out_path, backend)
 
-    return JSONResponse(
-        content={
-            "success": True,
-            "enhanced_path": str(out_path),
-            "backend": backend,
-        }
-    )
+    # Clean up temp file after response is sent
+    background_tasks.add_task(out_path.unlink, missing_ok=True)
+
+    media_type = "image/jpeg" if ext in {".jpg", ".jpeg"} else "image/png"
+    return FileResponse(str(out_path), media_type=media_type, filename=out_name)
 
 
 # ---------------------------------------------------------------------------

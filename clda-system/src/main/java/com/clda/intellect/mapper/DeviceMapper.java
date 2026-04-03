@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 设备管理Mapper接口
  *
- * @author ruoyi-xiaozhi
+ * @author clda-xiaozhi
  */
 public interface DeviceMapper extends CommonMapper<Device> {
 

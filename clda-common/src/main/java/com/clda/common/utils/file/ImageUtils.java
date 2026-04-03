@@ -16,7 +16,7 @@ import com.clda.common.utils.StringUtils;
 /**
  * 图片处理工具类
  *
- * @author ruoyi
+ * @author clda
  */
 public class ImageUtils
 {

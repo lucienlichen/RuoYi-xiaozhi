@@ -7,7 +7,7 @@ import com.clda.common.utils.ServletUtils;
 /**
  * 服务相关配置
  * 
- * @author ruoyi
+ * @author clda
  */
 @Component
 public class ServerConfig

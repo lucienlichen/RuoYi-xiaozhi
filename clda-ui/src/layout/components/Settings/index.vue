@@ -92,7 +92,7 @@ const showSettings = ref(false)
 const theme = ref(settingsStore.theme)
 const sideTheme = ref(settingsStore.sideTheme)
 const storeSettings = computed(() => settingsStore)
-const predefineColors = ref(["#409EFF", "#ff4500", "#ff8c00", "#ffd700", "#90ee90", "#00ced1", "#1e90ff", "#c71585"])
+const predefineColors = ref(["#003178", "#006c49", "#170dae", "#b45309", "#c2410c", "#be185d", "#475569"])
 
 /** 是否需要topnav */
 function topNavChange(val) {
@@ -150,7 +150,7 @@ defineExpose({
 <style lang='scss' scoped>
 .setting-drawer-title {
   margin-bottom: 12px;
-  color: var(--el-text-color-primary, rgba(0, 0, 0, 0.85));
+  color: var(--ds-on-surface);
   line-height: 22px;
   font-weight: bold;
 
@@ -185,7 +185,7 @@ defineExpose({
       height: 100%;
       padding-top: 15px;
       padding-left: 24px;
-      color: #1890ff;
+      color: var(--ds-primary);
       font-weight: 700;
       font-size: 14px;
     }
@@ -193,7 +193,7 @@ defineExpose({
 }
 
 .drawer-item {
-  color: var(--el-text-color-regular, rgba(0, 0, 0, 0.65));
+  color: var(--ds-on-surface-variant);
   padding: 12px 0;
   font-size: 14px;
 

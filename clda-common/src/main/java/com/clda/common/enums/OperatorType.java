@@ -3,7 +3,7 @@ package com.clda.common.enums;
 /**
  * 操作人类别
  * 
- * @author ruoyi
+ * @author clda
  */
 public enum OperatorType
 {

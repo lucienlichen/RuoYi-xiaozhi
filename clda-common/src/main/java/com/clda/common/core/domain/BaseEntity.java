@@ -15,7 +15,7 @@ import lombok.Data;
 /**
  * Entity基类
  *
- * @author ruoyi
+ * @author clda
  */
 @Data
 public class BaseEntity implements Serializable {
